@@ -1,76 +1,90 @@
 import React from "react";
-import { client, Field, Query } from "@tilework/opus";
-import { Link } from "react-router-dom";
+import CategoryProduct from "./CategoryProduct";
+import { client, Query, Field } from "@tilework/opus";
 
 client.setEndpoint("http://localhost:4000/graphql");
 
 class Category extends React.Component {
   controller = new AbortController();
+
   componentDidMount() {
-    console.log("component mounted: " + this.props.categoryName);
-    //this.fetchProducts();
+    console.log("Mounted: Category");
+    this.fetchProducts();
   }
+
   componentDidUpdate(prevProps) {
-    //if (prevProps !== this.props) this.fetchProducts();
+    if (this.props !== prevProps) {
+      /* if (this.props.match.params.name !== params.name) { */
+      this.controller.abort();
+      this.controller = new AbortController();
+
+      this.fetchProducts();
+      console.log("Updated: Category");
+    }
   }
+
   componentWillUnmount() {
+    console.log("Aborted: Category");
     this.controller.abort();
-    console.log("aborted");
   }
+
   constructor(props) {
     super(props);
     this.state = {
+      category: {},
       products: [],
-      error: "",
+      loading: true,
+      error: undefined,
     };
-
-    this.fetchProducts = this.fetchProducts.bind(this);
-    this.abort = this.abort.bind(this);
-  }
-  abort() {
-    this.controller.abort();
-    console.log(this.controller.signal.aborted);
   }
 
   async fetchProducts() {
-    const { categoryName } = this.props;
-    console.log(categoryName);
-
     const query = new Query("category", true);
     query.addField("name");
-    query.addField(new Field("products").addField("id").addField("name"));
+    query.addField(
+      new Field("products")
+        .addField("id")
+        .addField("name")
+        .addField("inStock")
+        .addField("gallery")
+        .addField("category")
+        .addField("brand")
+        /* .addField(        product attributes
+          new Field("attributes")
+            .addField("id")
+            .addField("name")
+            .addField("type")
+            .addField(new Field("items").addField("displayValue").addField("value").addField("id"))
+        ) */
+        .addField(new Field("prices").addField("amount").addField(new Field("currency").addField("label").addField("symbol")))
+    );
+    query.addArgument("input", "CategoryInput", { title: this.props.match.params.name });
 
-    query.addArgument("input", "CategoryInput", { title: categoryName });
-
-    const result = await client
+    client
       .post(query, { signal: this.controller.signal })
-      .then((res) => res.category.products)
-      .then((result) => {
-        this.setState({ products: result });
-        return;
+      .then((res) => res.category)
+      .then((category) => {
+        this.setState({ category: category, products: category.products, loading: false, error: undefined });
       })
       .catch((err) => {
         this.setState({ error: err.message });
         console.log(err.message);
-        return;
       });
-    return result;
   }
 
-  //output cat name and category items styled
   render() {
+    const { products, category, loading, error } = this.state;
+
+    if (loading) return <></>;
+    if (error) return <>{error}</>;
     return (
       <div>
-        <h1>{this.props.categoryName}</h1>
-        {this.state.products.map((product) => {
-          return (
-            <div key={product.id}>
-              <Link to={`/${product.id}`}>{product.name}</Link>
-            </div>
-          );
-        })}
-        <button onClick={this.fetchProducts}>fetch</button>
-        <button onClick={this.abort}>abort</button>
+        <div className="category__name">{category.name}</div>
+        <div className="category__products">
+          {products.map((product) => {
+            return <CategoryProduct key={`category_product${product.id}`} product={product} />;
+          })}
+        </div>
       </div>
     );
   }

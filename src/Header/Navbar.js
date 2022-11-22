@@ -1,10 +1,11 @@
 import React from "react";
-import "./Navbar.css";
 import logo from "../Images/Brand_icon.png";
 import cart from "../Images/Empty_cart.png";
 import { NavLink } from "react-router-dom";
+import Helper from "../Helper";
 
 //todo: place currency in context / redux
+//      add cart manipulation
 
 class Navbar extends React.Component {
   constructor(props) {
@@ -23,12 +24,9 @@ class Navbar extends React.Component {
     document.body.addEventListener("mousedown", this.exitDropdown);
   }
 
-  getStyle(className) {
-    const styleSheets = document.styleSheets[0];
-    for (const sheet of styleSheets.cssRules) {
-      if (sheet.selectorText === className) return sheet.style;
-    }
-    return undefined;
+  getStyle(classname) {
+    const desiredHref = "http://localhost:3000/styles/Header.css";
+    return Helper.getStyle(classname, desiredHref);
   }
 
   exitDropdown = (event) => {
@@ -71,6 +69,7 @@ class Navbar extends React.Component {
   }
 
   render() {
+    //className={(isActive) => ["nav__link", isActive ? "nav__link--border" : ""].join(" ")}
     return (
       <nav className="nav">
         <ul className="nav__list">
@@ -78,7 +77,7 @@ class Navbar extends React.Component {
             {this.props.categories.map((category, index) => {
               return (
                 <li key={`category${index}`}>
-                  <NavLink className={({ isActive }) => ["nav__link", isActive ? "nav__link--border" : ""].join(" ")} to={`/${category.name}`}>
+                  <NavLink activeClassName="nav__link--border" className="nav__link" to={`/categories/${category.name}`}>
                     {category.name}
                   </NavLink>
                 </li>

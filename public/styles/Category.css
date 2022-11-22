@@ -1,0 +1,137 @@
+/* Zmienic wyglad aby wygladalo prawie identycznie jak w poleceniu
+  rozmiary kart -- calc positioning w absolute do % wartosci w zaleceniu
+  align kart ?
+
+*/
+
+.category__name {
+  font-family: "Raleway";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 42px;
+  line-height: 160%;
+  margin-top: 9vh;
+  margin-bottom: 12vh;
+}
+
+.category__name::first-letter {
+  text-transform: uppercase;
+}
+
+.category__products {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0px 20px;
+  justify-content: space-evenly;
+}
+
+.product__card {
+  position: relative;
+  text-decoration: none;
+  text-align: center;
+  width: 400px;
+  height: 500px;
+  padding: 20px 20px 20px 20px;
+  margin-bottom: 100px;
+  box-sizing: border-box;
+}
+
+.product__card--link {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.product__card--opacity {
+  opacity: 0.5;
+}
+
+.product__card--imgContainer {
+  max-width: 360px;
+  max-height: 360px;
+  position: relative;
+}
+
+.product__card--img {
+  max-width: 360px;
+  max-height: 360px;
+  padding-bottom: 24px;
+}
+
+.product__card--oos {
+  text-decoration: none;
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  top: calc(50% - 19px);
+
+  font-family: "Raleway";
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 38px;
+  letter-spacing: 0px;
+  color: #1d1f22;
+  text-transform: uppercase;
+}
+
+.product__card:hover {
+  box-shadow: 0px 4px 35px rgba(168, 172, 176, 0.19);
+}
+
+.product__card:hover .product__card--button {
+  display: block;
+}
+
+.product__card--desc {
+  text-align: left;
+  position: absolute;
+  top: 80%;
+  display: block;
+}
+
+.product__card--name {
+  color: #1d1f22;
+  font-family: "Raleway";
+  font-style: normal;
+  font-weight: 300;
+  font-size: 18px;
+  line-height: 160%;
+  text-decoration: none;
+}
+
+.product__card--price {
+  font-family: "Raleway";
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 29px;
+  letter-spacing: 0em;
+  text-align: left;
+  color: #1d1f22;
+}
+
+.product__card--button {
+  display: none;
+  position: absolute;
+  cursor: pointer;
+  right: 60px;
+  top: 345px;
+
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #5ece7b;
+  filter: drop-shadow(0px 4px 11px rgba(29, 31, 34, 0.1));
+  border-color: transparent;
+}
+
+.product__card--button:disabled {
+  cursor: default;
+  background-color: #8d8f9a;
+}
+
+.product__card--cart {
+  width: 24px;
+  height: 24px;
+}

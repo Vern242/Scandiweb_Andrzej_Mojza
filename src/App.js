@@ -2,17 +2,18 @@ import React from "react";
 import Category from "./Category/Category";
 import Product from "./Product/Product";
 import Navbar from "./Header/Navbar";
-import "./App.css";
 import { client, Query, Field } from "@tilework/opus";
-import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Switch } from "react-router-dom";
 
 client.setEndpoint("http://localhost:4000/graphql");
 
 class App extends React.Component {
   componentDidMount() {
-    console.log("mounted");
-    this.fetchCurrencies();
-    this.fetchCategories();
+    Promise.all([this.fetchCurrencies(), this.fetchCategories()])
+      .then(() => this.setState({ loading: false }))
+      .catch((err) => {
+        this.setState({ error: err.message });
+      });
   }
 
   constructor(props) {
@@ -36,53 +37,60 @@ class App extends React.Component {
       .then((res) => res.currencies)
       .then((cur) => {
         this.setState({ currencies: cur });
-        console.log(cur);
-      })
-      .catch((err) => {
-        this.setState({ error: err.message });
       });
   }
 
   async fetchCategories() {
     const query = new Query("categories", true);
     query.addField("name");
-    query.addField(new Field("products").addField("id").addField("name"));
-    const categories = await client
-      .post(query)
-      .then((res) => res.categories)
-      .catch((err) => {
-        this.setState({ error: err.message });
-      });
+    /*     query.addField(
+      new Field("products")
+        .addField("id")
+        .addField("name")
+        .addField("inStock")
+        .addField("gallery")
+        .addField("description")
+        .addField("category")
+        .addField("brand")
+        .addField(
+          new Field("attributes")
+            .addField("id")
+            .addField("name")
+            .addField("type")
+            .addField(new Field("items").addField("displayValue").addField("value").addField("id"))
+        )
+        .addField(new Field("prices").addField("amount").addField(new Field("currency").addField("label").addField("symbol")))
+    ); */
+
+    const categories = await client.post(query).then((res) => res.categories);
     if (typeof categories !== "undefined") {
-      const productIdsSet = new Set();
+      /* const productsSet = new Set();
       for (const cat of categories) {
         for (const prod of cat.products) {
-          productIdsSet.add(prod.id);
+          productsSet.add(prod);
         }
-      }
-      const productIds = [...productIdsSet];
-      this.setState({ categories: categories, products: productIds, loading: false });
+      } 
+      const products = [...productsSet];*/
+      this.setState({ categories: categories });
     }
-    return 0;
   }
 
   render() {
     //add error route if fetch fails
+
+    //passing data to routes through params instead of props
+
     if (this.state.loading) return <>{this.state.error}</>;
     return (
       <BrowserRouter>
         <Navbar categories={this.state.categories} currencies={this.state.currencies} />
-        <Routes>
-          {this.state.categories.map((category) => {
-            return <Route key={`route_${category.name}`} element={<Category categoryName={category.name} />} path={`/${category.name}`} />;
-          })}
-          {this.state.products.map((productId) => {
-            return <Route key={`route_${productId}`} element={<Product productId={productId} />} path={`/${productId}`} />;
-          })}
+        <Switch>
+          <Route component={Category} path={`/categories/:name`} />;
+          <Route component={Product} path={`/products/:id`} />;
           {
             // add default route if one not found
           }
-        </Routes>
+        </Switch>
       </BrowserRouter>
     );
   }
