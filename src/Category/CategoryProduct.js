@@ -21,6 +21,7 @@ class CategoryProduct extends React.Component {
     const { product } = this.props;
     const { link } = this.state;
     const { name, gallery, brand, prices, inStock } = product;
+    const imageStyle = { backgroundImage: `url(${gallery[0]})` };
 
     return (
       <div className="product__card">
@@ -28,7 +29,7 @@ class CategoryProduct extends React.Component {
           <div className={inStock ? "" : "product__card--opacity"}>
             <div className="product__card--imgContainer">
               {!inStock && <span className="product__card--oos">Out of stock</span>}
-              <img className="product__card--img" src={gallery[0]} alt={name} />
+              <div className="product__card--backgroundImg" style={imageStyle} />
             </div>
           </div>
           <div className="product__card--desc">

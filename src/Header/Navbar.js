@@ -69,7 +69,6 @@ class Navbar extends React.Component {
   }
 
   render() {
-    //className={(isActive) => ["nav__link", isActive ? "nav__link--border" : ""].join(" ")}
     return (
       <nav className="nav">
         <ul className="nav__list">
@@ -77,7 +76,7 @@ class Navbar extends React.Component {
             {this.props.categories.map((category, index) => {
               return (
                 <li key={`category${index}`}>
-                  <NavLink activeClassName="nav__link--border" className="nav__link" to={`/categories/${category.name}`}>
+                  <NavLink activeClassName="nav__link--border" className="nav__link" to={`/categories/${category.name}`} id={category.name}>
                     {category.name}
                   </NavLink>
                 </li>
