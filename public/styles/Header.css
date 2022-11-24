@@ -56,7 +56,7 @@ li {
   align-items: center;
   text-align: center;
   text-transform: uppercase;
-  border-bottom: 2px solid transparent;
+  border-bottom: 3px solid transparent;
 }
 
 .nav__link--border {
