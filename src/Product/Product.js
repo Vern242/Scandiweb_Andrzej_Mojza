@@ -3,7 +3,6 @@ import { client, Field, Query } from "@tilework/opus";
 
 //dodac abortSignaller na unmount -- anuluj przed przejsciem do innej kategori
 //wyczyscic kod
-//podswietlic kategorie odpowiednia dla produktu.. wziac regule z headera i zmienic?
 
 client.setEndpoint("http://localhost:4000/graphql");
 

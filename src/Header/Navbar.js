@@ -3,11 +3,13 @@ import logo from "../Images/Brand_icon.png";
 import cart from "../Images/Empty_cart.png";
 import { NavLink } from "react-router-dom";
 import Helper from "../Helper";
+import { AppContext } from "../Context";
 
 //todo: place currency in context / redux
 //      add cart manipulation
 
 class Navbar extends React.Component {
+  static contextType = AppContext;
   constructor(props) {
     super(props);
     this.state = { currency: "$", buttonStyle: undefined, dropdownStyle: undefined };
@@ -22,6 +24,7 @@ class Navbar extends React.Component {
     this.setState({ buttonStyle, dropdownStyle });
 
     document.body.addEventListener("mousedown", this.exitDropdown);
+    console.log(this.context);
   }
 
   getStyle(classname) {
@@ -70,49 +73,55 @@ class Navbar extends React.Component {
 
   render() {
     return (
-      <nav className="nav">
-        <ul className="nav__list">
-          <ul className="nav__section left">
-            {this.props.categories.map((category, index) => {
-              return (
-                <li key={`category${index}`}>
-                  <NavLink activeClassName="nav__link--border" className="nav__link" to={`/categories/${category.name}`} id={category.name}>
-                    {category.name}
-                  </NavLink>
-                </li>
-              );
-            })}
-          </ul>
-          <li>
-            <img className="nav__logo" src={logo} alt="Brand logo" />
-          </li>
-          <ul className="nav__section right">
-            <ul className="nav__actions">
-              <li className="nav__currency">
-                <span className="nav__currency--display">{this.state.currency}</span>
-                <button className="nav__button" onMouseDown={this.toggleDropdown} id="nav__button">
-                  ^
-                </button>
-                <div className="nav__dropdown" id="nav__dropdown">
-                  {this.props.currencies.map((currency) => {
+      <AppContext.Consumer>
+        {(ctx) => {
+          return (
+            <nav className="nav">
+              <ul className="nav__list">
+                <ul className="nav__section left">
+                  {this.props.categories.map((category, index) => {
                     return (
-                      <div key={currency.symbol} className="nav__dropdown--item" onMouseDown={this.selectCurrency}>
-                        {currency.symbol} {currency.label}
-                      </div>
+                      <li key={`category${index}`}>
+                        <NavLink activeClassName="nav__link--border" className="nav__link" to={`/categories/${category.name}`} id={category.name}>
+                          {category.name}
+                        </NavLink>
+                      </li>
                     );
                   })}
-                </div>
-              </li>
-              <li>
-                <img className="nav__cart--icon" src={cart} alt="Cart icon" />
-                <span className="nav__cart--dot">
-                  <span className="nav__cart--dot--text">3</span>
-                </span>
-              </li>
-            </ul>
-          </ul>
-        </ul>
-      </nav>
+                </ul>
+                <li>
+                  <img className="nav__logo" src={logo} alt="Brand logo" />
+                </li>
+                <ul className="nav__section right">
+                  <ul className="nav__actions">
+                    <li className="nav__currency">
+                      <span className="nav__currency--display">{this.state.currency}</span>
+                      <button className="nav__button" onMouseDown={this.toggleDropdown} id="nav__button">
+                        ^
+                      </button>
+                      <div className="nav__dropdown" id="nav__dropdown">
+                        {this.props.currencies.map((currency) => {
+                          return (
+                            <div key={currency.symbol} className="nav__dropdown--item" onMouseDown={this.selectCurrency}>
+                              {currency.symbol} {currency.label}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </li>
+                    <li>
+                      <img className="nav__cart--icon" src={cart} alt="Cart icon" />
+                      <span className="nav__cart--dot">
+                        <span className="nav__cart--dot--text">3</span>
+                      </span>
+                    </li>
+                  </ul>
+                </ul>
+              </ul>
+            </nav>
+          );
+        }}
+      </AppContext.Consumer>
     );
   }
 }
