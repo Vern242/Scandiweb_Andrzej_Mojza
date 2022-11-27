@@ -12,7 +12,13 @@ class Navbar extends React.Component {
   static contextType = AppContext;
   constructor(props) {
     super(props);
-    this.state = { currency: "$", buttonStyle: undefined, dropdownStyle: undefined };
+    this.state = {
+      currency: "",
+      cart: [],
+      buttonStyle: undefined,
+      dropdownStyle: undefined,
+      loading: true,
+    };
     this.toggleDropdown = this.toggleDropdown.bind(this);
     this.selectCurrency = this.selectCurrency.bind(this);
   }
@@ -21,10 +27,22 @@ class Navbar extends React.Component {
     const dropdownStyle = this.getStyle(".nav__dropdown");
     const buttonStyle = this.getStyle(".nav__button");
 
-    this.setState({ buttonStyle, dropdownStyle });
+    const [context] = this.context;
+    const { currency, cart } = context;
+
+    this.setState({ buttonStyle, dropdownStyle, cart, currency, loading: false });
 
     document.body.addEventListener("mousedown", this.exitDropdown);
-    console.log(this.context);
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) {
+      //update navbar when the context changes -- props will change
+      console.log("changed navbar");
+      const [context] = this.context;
+      const { currency, cart } = context;
+      this.setState({ currency, cart });
+    }
   }
 
   getStyle(classname) {
@@ -65,63 +83,60 @@ class Navbar extends React.Component {
   }
 
   selectCurrency(event) {
-    const newCurrency = event.target.innerText.split(" ")[0];
+    const currency = event.target.innerText.split(" ")[0];
     this.closeDropdown();
 
-    this.setState({ currency: newCurrency });
+    const [, setContext] = this.context;
+    setContext({ currency });
   }
 
   render() {
+    const { loading, currency } = this.state;
+    if (loading) return <></>;
     return (
-      <AppContext.Consumer>
-        {(ctx) => {
-          return (
-            <nav className="nav">
-              <ul className="nav__list">
-                <ul className="nav__section left">
-                  {this.props.categories.map((category, index) => {
+      <nav className="nav">
+        <ul className="nav__list">
+          <ul className="nav__section left">
+            {this.props.categories.map((category, index) => {
+              return (
+                <li key={`category${index}`}>
+                  <NavLink activeClassName="nav__link--border" className="nav__link" to={`/categories/${category.name}`} id={category.name}>
+                    {category.name}
+                  </NavLink>
+                </li>
+              );
+            })}
+          </ul>
+          <li>
+            <img className="nav__logo" src={logo} alt="Brand logo" />
+          </li>
+          <ul className="nav__section right">
+            <ul className="nav__actions">
+              <li className="nav__currency">
+                <span className="nav__currency--display">{currency}</span>
+                <button className="nav__button" onMouseDown={this.toggleDropdown} id="nav__button">
+                  ^
+                </button>
+                <div className="nav__dropdown" id="nav__dropdown">
+                  {this.props.currencies.map((currency) => {
                     return (
-                      <li key={`category${index}`}>
-                        <NavLink activeClassName="nav__link--border" className="nav__link" to={`/categories/${category.name}`} id={category.name}>
-                          {category.name}
-                        </NavLink>
-                      </li>
+                      <div key={currency.symbol} className="nav__dropdown--item" onMouseDown={this.selectCurrency}>
+                        {currency.symbol} {currency.label}
+                      </div>
                     );
                   })}
-                </ul>
-                <li>
-                  <img className="nav__logo" src={logo} alt="Brand logo" />
-                </li>
-                <ul className="nav__section right">
-                  <ul className="nav__actions">
-                    <li className="nav__currency">
-                      <span className="nav__currency--display">{this.state.currency}</span>
-                      <button className="nav__button" onMouseDown={this.toggleDropdown} id="nav__button">
-                        ^
-                      </button>
-                      <div className="nav__dropdown" id="nav__dropdown">
-                        {this.props.currencies.map((currency) => {
-                          return (
-                            <div key={currency.symbol} className="nav__dropdown--item" onMouseDown={this.selectCurrency}>
-                              {currency.symbol} {currency.label}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </li>
-                    <li>
-                      <img className="nav__cart--icon" src={cart} alt="Cart icon" />
-                      <span className="nav__cart--dot">
-                        <span className="nav__cart--dot--text">3</span>
-                      </span>
-                    </li>
-                  </ul>
-                </ul>
-              </ul>
-            </nav>
-          );
-        }}
-      </AppContext.Consumer>
+                </div>
+              </li>
+              <li>
+                <img className="nav__cart--icon" src={cart} alt="Cart icon" />
+                <span className="nav__cart--dot">
+                  <span className="nav__cart--dot--text">3</span>
+                </span>
+              </li>
+            </ul>
+          </ul>
+        </ul>
+      </nav>
     );
   }
 }

@@ -1,12 +1,13 @@
 import React from "react";
 import { client, Field, Query } from "@tilework/opus";
+import Helper from "../Helper";
+import { AppContext } from "../Context";
 
 //dodac abortSignaller na unmount -- anuluj przed przejsciem do innej kategori
 //wyczyscic kod
 
-client.setEndpoint("http://localhost:4000/graphql");
-
 class Product extends React.Component {
+  static contextType = AppContext;
   constructor(props) {
     super(props);
     this.state = {
@@ -22,6 +23,8 @@ class Product extends React.Component {
       bigImg: "",
       prices: [],
       settings: [],
+      currency: "",
+      cart: [],
     };
 
     this.changeSrc = this.changeSrc.bind(this);
@@ -32,10 +35,22 @@ class Product extends React.Component {
   componentDidMount() {
     console.log("component mounted: " + this.props.match.params.id);
     this.fetchProductData();
+    const [context] = this.context;
+    const { currency, cart } = context;
+    this.setState({ currency, cart });
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps !== this.props) this.fetchProductData();
+    console.log("update");
+    if (prevProps !== this.props) {
+      if (prevProps.match.params.id !== this.props.match.params.id) {
+        this.fetchProductData();
+      }
+      console.log("changed product");
+      const [context] = this.context;
+      const { currency, cart } = context;
+      this.setState({ currency, cart });
+    }
   }
 
   componentWillUnmount() {
@@ -120,7 +135,13 @@ class Product extends React.Component {
     return { backgroundImage: `url(${img})` };
   }
 
+  currentPrice = () => {
+    const { prices, currency } = this.state;
+    return Helper.currentPrice(prices, currency);
+  };
+
   render() {
+    // add stock page for faulty url?
     const { loading, error, name, inStock, gallery, description, brand, attributes, bigImg, prices, settings } = this.state;
     const oos = inStock ? "" : "oos";
     if (loading) return <></>;
@@ -205,10 +226,7 @@ class Product extends React.Component {
           </div>
           <div className="product__dsc--price">
             <div className="product__dsc--attributes-type">Price:</div>
-            <div>
-              {prices[0].currency.symbol}
-              {prices[0].amount}
-            </div>
+            <div>{this.currentPrice()}</div>
           </div>
           <button className={`product__dsc--button ${oos}`} disabled={!inStock}>
             <div className="product__dsc--button-text">{inStock ? "add to cart" : "out of stock"}</div>

@@ -11,8 +11,16 @@ class Context extends React.Component {
     };
   }
 
+  componentDidUpdate() {
+    console.log(this.state);
+  }
+
+  setContext = (state) => {
+    this.setState(state);
+  };
+
   render() {
-    return <AppContext.Provider value={[this.state, this.setState]}>{this.props.children}</AppContext.Provider>;
+    return <AppContext.Provider value={[this.state, this.setContext]}>{this.props.children}</AppContext.Provider>;
   }
 }
 

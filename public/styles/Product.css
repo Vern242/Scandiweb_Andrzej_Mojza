@@ -136,6 +136,7 @@
   font-style: normal;
   letter-spacing: 0.05em;
   text-align: center;
+  cursor: pointer;
 }
 
 .text__item--text {

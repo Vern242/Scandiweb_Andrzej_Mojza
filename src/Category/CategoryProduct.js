@@ -2,25 +2,49 @@
 import React from "react";
 import cart from "../Images/Card_cart.png";
 import { Link } from "react-router-dom";
+import { AppContext } from "../Context";
+import Helper from "../Helper";
 
 class CategoryProduct extends React.Component {
+  static contextType = AppContext;
   constructor(props) {
     super(props);
     this.state = {
       link: `/products/${this.props.product.id}`,
+      currency: "",
+      cart: [],
     };
-
     this.addToCart = this.addToCart.bind(this);
+  }
+
+  componentDidMount() {
+    const [context] = this.context;
+    const { currency, cart } = context;
+    this.setState({ currency, cart });
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props !== prevProps) {
+      const [context] = this.context;
+      const { currency, cart } = context;
+      this.setState({ currency, cart });
+    }
   }
 
   addToCart(event) {
     console.log(this.props.product.name);
   }
 
+  currentPrice = () => {
+    const { prices } = this.props.product;
+    const { currency } = this.state;
+    return Helper.currentPrice(prices, currency);
+  };
+
   render() {
     const { product } = this.props;
     const { link } = this.state;
-    const { name, gallery, brand, prices, inStock } = product;
+    const { name, gallery, brand, inStock } = product;
     const imageStyle = { backgroundImage: `url(${gallery[0]})` };
 
     return (
@@ -36,10 +60,7 @@ class CategoryProduct extends React.Component {
             <div className="product__card--name">
               {brand} {name}
             </div>
-            <div className="product__card--price">
-              {prices[0].currency.symbol}
-              {prices[0].amount}
-            </div>
+            <div className="product__card--price">{this.currentPrice()}</div>
           </div>
         </Link>
         <button className="product__card--button" onClick={this.addToCart} disabled={!inStock}>

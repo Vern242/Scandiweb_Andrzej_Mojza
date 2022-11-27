@@ -4,16 +4,17 @@ import Product from "./Product/Product";
 import Navbar from "./Header/Navbar";
 import { client, Query } from "@tilework/opus";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
+import { AppContext } from "./Context";
 
 client.setEndpoint("http://localhost:4000/graphql");
 
 class App extends React.Component {
+  static contextType = AppContext;
   constructor(props) {
     super(props);
     this.state = {
       loading: true,
       categories: [],
-      products: [],
       currencies: [],
       error: undefined,
     };
@@ -21,7 +22,12 @@ class App extends React.Component {
 
   componentDidMount() {
     Promise.all([this.fetchCurrencies(), this.fetchCategories()])
-      .then(() => this.setState({ loading: false, error: undefined }))
+      .then(([cur, cat]) => {
+        const [, setContext] = this.context;
+
+        setContext({ currency: cur[0].symbol });
+        this.setState({ currencies: cur, categories: cat, loading: false, error: undefined });
+      })
       .catch((err) => {
         this.setState({ error: err.message });
       });
@@ -32,11 +38,11 @@ class App extends React.Component {
     query.addField("label");
     query.addField("symbol");
 
-    client
+    return client
       .post(query)
       .then((res) => res.currencies)
       .then((cur) => {
-        this.setState({ currencies: cur });
+        return cur;
       });
   }
 
@@ -44,14 +50,16 @@ class App extends React.Component {
     const query = new Query("categories", true);
     query.addField("name");
 
-    const categories = await client.post(query).then((res) => res.categories);
-    if (typeof categories !== "undefined") {
-      this.setState({ categories: categories });
-    }
+    return client
+      .post(query)
+      .then((res) => res.categories)
+      .then((cat) => {
+        return cat;
+      });
   }
 
   render() {
-    //add error route if fetch fails
+    //add default route if one not found
     const { loading, error, categories, currencies } = this.state;
 
     if (error) return <>{error}</>;

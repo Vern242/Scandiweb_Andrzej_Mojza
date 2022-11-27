@@ -2,8 +2,6 @@ import React from "react";
 import CategoryProduct from "./CategoryProduct";
 import { client, Query, Field } from "@tilework/opus";
 
-client.setEndpoint("http://localhost:4000/graphql");
-
 class Category extends React.Component {
   controller = new AbortController();
   constructor(props) {
@@ -59,6 +57,9 @@ class Category extends React.Component {
         this.activateCategoryBorder(category.name);
       })
       .catch((err) => {
+        if (err?.name === "AbortError") {
+          return undefined;
+        }
         this.setState({ error: err.message });
         console.log(err.message);
       });
