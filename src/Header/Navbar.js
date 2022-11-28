@@ -1,12 +1,11 @@
 import React from "react";
-import logo from "../Images/Brand_icon.png";
-import cart from "../Images/Empty_cart.png";
+import logoImg from "../Images/Brand_icon.png";
+import cartImg from "../Images/Empty_cart.png";
 import { NavLink } from "react-router-dom";
 import Helper from "../Helper";
 import { AppContext } from "../Context";
 
-//todo: place currency in context / redux
-//      add cart manipulation
+//      add cart -- modal
 
 class Navbar extends React.Component {
   static contextType = AppContext;
@@ -19,8 +18,6 @@ class Navbar extends React.Component {
       dropdownStyle: undefined,
       loading: true,
     };
-    this.toggleDropdown = this.toggleDropdown.bind(this);
-    this.selectCurrency = this.selectCurrency.bind(this);
   }
 
   componentDidMount() {
@@ -37,7 +34,6 @@ class Navbar extends React.Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps !== this.props) {
-      //update navbar when the context changes -- props will change
       console.log("changed navbar");
       const [context] = this.context;
       const { currency, cart } = context;
@@ -58,40 +54,49 @@ class Navbar extends React.Component {
     }
   };
 
-  toggleDropdown() {
+  toggleDropdown = () => {
     const dropdownStyle = this.state.dropdownStyle;
 
     dropdownStyle.display === "none" ? this.openDrodpdown() : this.closeDropdown();
-  }
+  };
 
-  closeDropdown() {
+  closeDropdown = () => {
     const dropdownStyle = this.state.dropdownStyle;
     const buttonStyle = this.state.buttonStyle;
 
     buttonStyle.transform = "rotate(0.5turn)";
     buttonStyle["padding-top"] = "";
     dropdownStyle.display = "none";
-  }
+  };
 
-  openDrodpdown() {
+  openDrodpdown = () => {
     const dropdownStyle = this.state.dropdownStyle;
     const buttonStyle = this.state.buttonStyle;
 
     buttonStyle.transform = "";
     buttonStyle["padding-top"] = "10px";
     dropdownStyle.display = "inline-block";
-  }
+  };
 
-  selectCurrency(event) {
+  selectCurrency = (event) => {
     const currency = event.target.innerText.split(" ")[0];
     this.closeDropdown();
 
     const [, setContext] = this.context;
     setContext({ currency });
-  }
+  };
+
+  cartQuantity = () => {
+    const { cart } = this.state;
+    let quantity = 0;
+    for (let i = 0; i < cart.length; i++) {
+      quantity += cart[i].quantity;
+    }
+    return quantity;
+  };
 
   render() {
-    const { loading, currency } = this.state;
+    const { loading, currency, cart } = this.state;
     if (loading) return <></>;
     return (
       <nav className="nav">
@@ -108,7 +113,7 @@ class Navbar extends React.Component {
             })}
           </ul>
           <li>
-            <img className="nav__logo" src={logo} alt="Brand logo" />
+            <img className="nav__logo" src={logoImg} alt="Brand logo" />
           </li>
           <ul className="nav__section right">
             <ul className="nav__actions">
@@ -128,10 +133,12 @@ class Navbar extends React.Component {
                 </div>
               </li>
               <li>
-                <img className="nav__cart--icon" src={cart} alt="Cart icon" />
-                <span className="nav__cart--dot">
-                  <span className="nav__cart--dot--text">3</span>
-                </span>
+                <img className="nav__cart--icon" src={cartImg} alt="Cart icon" />
+                {cart.length > 0 && (
+                  <span className="nav__cart--dot">
+                    <span className="nav__cart--dot--text">{this.cartQuantity()}</span>
+                  </span>
+                )}
               </li>
             </ul>
           </ul>

@@ -1,6 +1,5 @@
-//zmiana kasy przy innym currency wybranym
 import React from "react";
-import cart from "../Images/Card_cart.png";
+import cartImg from "../Images/Card_cart.png";
 import { Link } from "react-router-dom";
 import { AppContext } from "../Context";
 import Helper from "../Helper";
@@ -14,7 +13,6 @@ class CategoryProduct extends React.Component {
       currency: "",
       cart: [],
     };
-    this.addToCart = this.addToCart.bind(this);
   }
 
   componentDidMount() {
@@ -31,13 +29,17 @@ class CategoryProduct extends React.Component {
     }
   }
 
-  addToCart(event) {
-    console.log(this.props.product.name);
-  }
+  addToCart = () => {
+    const { id, brand, name, prices, attributes, gallery, settings } = this.props.product;
+    const product = { id, brand, name, prices, attributes, gallery };
+
+    Helper.addToCart(this.context, product, settings);
+  };
 
   currentPrice = () => {
     const { prices } = this.props.product;
     const { currency } = this.state;
+
     return Helper.currentPrice(prices, currency);
   };
 
@@ -64,7 +66,7 @@ class CategoryProduct extends React.Component {
           </div>
         </Link>
         <button className="product__card--button" onClick={this.addToCart} disabled={!inStock}>
-          <img className="product__card--cart" src={cart} alt="add to cart" />
+          <img className="product__card--cart" src={cartImg} alt="add to cart" />
         </button>
       </div>
     );

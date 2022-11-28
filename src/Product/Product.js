@@ -3,14 +3,14 @@ import { client, Field, Query } from "@tilework/opus";
 import Helper from "../Helper";
 import { AppContext } from "../Context";
 
-//dodac abortSignaller na unmount -- anuluj przed przejsciem do innej kategori
-//wyczyscic kod
+//add abortsignaler?
 
 class Product extends React.Component {
   static contextType = AppContext;
   constructor(props) {
     super(props);
     this.state = {
+      id: "",
       name: "",
       inStock: false,
       gallery: [],
@@ -26,10 +26,6 @@ class Product extends React.Component {
       currency: "",
       cart: [],
     };
-
-    this.changeSrc = this.changeSrc.bind(this);
-    this.changeSettings = this.changeSettings.bind(this);
-    this.backgroundImgStyle = this.backgroundImgStyle.bind(this);
   }
 
   componentDidMount() {
@@ -41,7 +37,6 @@ class Product extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    console.log("update");
     if (prevProps !== this.props) {
       if (prevProps.match.params.id !== this.props.match.params.id) {
         this.fetchProductData();
@@ -56,11 +51,6 @@ class Product extends React.Component {
   componentWillUnmount() {
     const navCategory = document.getElementById(this.state.category);
     navCategory.classList.toggle("nav__link--border");
-  }
-
-  activateCategoryBorder(categoryName) {
-    const navCategory = document.getElementById(categoryName);
-    navCategory.classList.add("nav__link--border");
   }
 
   async fetchProductData() {
@@ -96,6 +86,7 @@ class Product extends React.Component {
           settings.push({ id, value });
         });
         this.setState({
+          id: p.id,
           name: p.name,
           inStock: p.inStock,
           gallery: p.gallery,
@@ -116,11 +107,16 @@ class Product extends React.Component {
       });
   }
 
-  changeSrc(img) {
-    this.setState({ bigImg: img });
-  }
+  activateCategoryBorder = (categoryName) => {
+    const navCategory = document.getElementById(categoryName);
+    navCategory.classList.add("nav__link--border");
+  };
 
-  changeSettings(id, value) {
+  changeSrc = (img) => {
+    this.setState({ bigImg: img });
+  };
+
+  changeSettings = (id, value) => {
     const settings = this.state.settings;
     for (let i = 0; i < settings.length; i++) {
       if (settings[i].id === id) {
@@ -129,20 +125,27 @@ class Product extends React.Component {
         return;
       }
     }
-  }
+  };
 
-  backgroundImgStyle(img) {
+  backgroundImgStyle = (img) => {
     return { backgroundImage: `url(${img})` };
-  }
+  };
 
   currentPrice = () => {
     const { prices, currency } = this.state;
     return Helper.currentPrice(prices, currency);
   };
 
+  addToCart = () => {
+    const { id, brand, name, prices, attributes, gallery, settings } = this.state;
+    const product = { id, brand, name, prices, attributes, gallery };
+
+    Helper.addToCart(this.context, product, settings);
+  };
+
   render() {
     // add stock page for faulty url?
-    const { loading, error, name, inStock, gallery, description, brand, attributes, bigImg, prices, settings } = this.state;
+    const { loading, error, name, inStock, gallery, description, brand, attributes, bigImg, settings } = this.state;
     const oos = inStock ? "" : "oos";
     if (loading) return <></>;
     if (error) return <>{error}</>;
@@ -228,7 +231,7 @@ class Product extends React.Component {
             <div className="product__dsc--attributes-type">Price:</div>
             <div>{this.currentPrice()}</div>
           </div>
-          <button className={`product__dsc--button ${oos}`} disabled={!inStock}>
+          <button className={`product__dsc--button ${oos}`} onClick={this.addToCart} disabled={!inStock}>
             <div className="product__dsc--button-text">{inStock ? "add to cart" : "out of stock"}</div>
           </button>
           <div className="product__dsc--dsc">

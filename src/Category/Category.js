@@ -46,6 +46,13 @@ class Category extends React.Component {
         .addField("category")
         .addField("brand")
         .addField(new Field("prices").addField("amount").addField(new Field("currency").addField("label").addField("symbol")))
+        .addField(
+          new Field("attributes")
+            .addField("id")
+            .addField("name")
+            .addField("type")
+            .addField(new Field("items").addField("displayValue").addField("value").addField("id"))
+        )
     );
     query.addArgument("input", "CategoryInput", { title: this.props.match.params.name });
 

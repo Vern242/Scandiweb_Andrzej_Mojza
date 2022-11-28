@@ -94,6 +94,7 @@
 
 .swatch__item--border {
   border: 1px solid transparent;
+  cursor: pointer;
 }
 
 .swatch__item--border-selected {
