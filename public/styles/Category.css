@@ -17,7 +17,7 @@
   flex-direction: row;
   flex-wrap: wrap;
   gap: 0px 20px;
-  justify-content: space-evenly;
+  justify-content: flex-start;
 }
 
 .product__card {
