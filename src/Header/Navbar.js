@@ -95,6 +95,16 @@ class Navbar extends React.Component {
     return quantity;
   };
 
+  toggleModal = () => {
+    //add toggle the actual cart
+    //add listener to turn off the modal when clicked outside
+    const modal = document.querySelector(".modal__backdrop");
+    const style = modal.style;
+
+    if (style.display === "") style.display = "block";
+    else if (style.display === "block") style.display = "";
+  };
+
   render() {
     const { loading, currency, cart } = this.state;
     if (loading) return <></>;
@@ -112,7 +122,7 @@ class Navbar extends React.Component {
               );
             })}
           </ul>
-          <li>
+          <li className="logo">
             <img className="nav__logo" src={logoImg} alt="Brand logo" />
           </li>
           <ul className="nav__section right">
@@ -132,7 +142,7 @@ class Navbar extends React.Component {
                   })}
                 </div>
               </li>
-              <li>
+              <li className="nav__cart" onClick={this.toggleModal}>
                 <img className="nav__cart--icon" src={cartImg} alt="Cart icon" />
                 {cart.length > 0 && (
                   <span className="nav__cart--dot">

@@ -1,3 +1,8 @@
+.product {
+  padding-left: 7vw;
+  padding-right: 7vw;
+}
+
 .product__container {
   display: flex;
   padding-top: 80px;

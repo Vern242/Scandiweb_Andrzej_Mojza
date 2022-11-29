@@ -1,3 +1,8 @@
+.category {
+  padding-left: 7vw;
+  padding-right: 7vw;
+}
+
 .category__name {
   font-family: "Raleway";
   font-style: normal;

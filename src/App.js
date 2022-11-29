@@ -66,7 +66,10 @@ class App extends React.Component {
     if (loading) return <></>;
     return (
       <BrowserRouter>
-        <Navbar categories={categories} currencies={currencies} />
+        <div className="header">
+          <div className="modal__backdrop" />
+          <Navbar categories={categories} currencies={currencies} />
+        </div>
         <Switch>
           <Route component={Category} path={`/categories/:name`} />;
           <Route component={Product} path={`/products/:id`} />;

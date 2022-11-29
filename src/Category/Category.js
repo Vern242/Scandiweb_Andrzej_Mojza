@@ -83,7 +83,7 @@ class Category extends React.Component {
     if (loading) return <></>;
     if (error) return <>{error}</>;
     return (
-      <div>
+      <div className="category">
         <div className="category__name">{category.name}</div>
         <div className="category__products">
           {products.map((product) => {

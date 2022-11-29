@@ -150,92 +150,98 @@ class Product extends React.Component {
     if (loading) return <></>;
     if (error) return <>{error}</>;
     return (
-      <div className="product__container">
-        <div className="product__gallery">
-          {gallery.map((img, index) => {
-            const borderClass = "";
-            // = bigImg === img ? "product__gallery--item-border" : "";
-            return (
-              <div
-                key={`img${index}`}
-                className={`product__gallery--item ${borderClass}`}
-                style={this.backgroundImgStyle(img)}
-                onClick={() => this.changeSrc(img)}
-                alt={`${brand} ${name} ${index}`}
-              />
-            );
-          })}
-        </div>
-        <div>
-          <img className="product__bigImg" src={bigImg} alt={name} />
-        </div>
-        <div className="product__dsc">
-          <div className="product__dsc--brand">
-            <div>{brand}</div>
-          </div>
-          <div className="product__dsc--name">
-            <div>{name}</div>
-          </div>
-          <div className="product__dsc--attributes">
-            {attributes.map((a, index) => {
+      <div className="product">
+        <div className="product__container">
+          <div className="product__gallery">
+            {gallery.map((img, index) => {
+              const borderClass = "";
+              // = bigImg === img ? "product__gallery--item-border" : "";
               return (
-                <div className="product__dsc--attributes-type" key={a.id}>
-                  <div className="">{a.id}:</div>
-
-                  {a.type === "swatch" && (
-                    <div className="swatch__container">
-                      {a.items.map((item) => {
-                        const borderClass = item.value === settings[index].value ? "swatch__item--border-selected" : "";
-                        const itemStyle = { backgroundColor: item.value };
-                        const coloredBorder = { border: `1px solid ${item.value}` };
-                        return (
-                          <div
-                            key={`swatch ${item.id}`}
-                            className={`swatch__item--border ${borderClass}`}
-                            onClick={() => this.changeSettings(a.id, item.value)}
-                          >
-                            <div className="swatch__item--spacer">
-                              {item.displayValue === "White" && (
-                                <div className={`swatch__item--white`}>
-                                  <div className="swatch__item" style={itemStyle} />
-                                </div>
-                              )}
-                              {item.displayValue !== "White" && (
-                                <div style={coloredBorder}>
-                                  <div className="swatch__item" style={itemStyle} />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                  {a.type === "text" && (
-                    <div className="text__container">
-                      {a.items.map((item) => {
-                        const borderClass = item.value === settings[index].value ? "selected" : "";
-                        return (
-                          <div key={`text ${item.id}`} className={`text__item ${borderClass}`} onClick={() => this.changeSettings(a.id, item.value)}>
-                            <div className="text__item--text">{item.value}</div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
+                <div
+                  key={`img${index}`}
+                  className={`product__gallery--item ${borderClass}`}
+                  style={this.backgroundImgStyle(img)}
+                  onClick={() => this.changeSrc(img)}
+                  alt={`${brand} ${name} ${index}`}
+                />
               );
             })}
           </div>
-          <div className="product__dsc--price">
-            <div className="product__dsc--attributes-type">Price:</div>
-            <div>{this.currentPrice()}</div>
+          <div>
+            <img className="product__bigImg" src={bigImg} alt={name} />
           </div>
-          <button className={`product__dsc--button ${oos}`} onClick={this.addToCart} disabled={!inStock}>
-            <div className="product__dsc--button-text">{inStock ? "add to cart" : "out of stock"}</div>
-          </button>
-          <div className="product__dsc--dsc">
-            <div dangerouslySetInnerHTML={{ __html: description }}></div>
+          <div className="product__dsc">
+            <div className="product__dsc--brand">
+              <div>{brand}</div>
+            </div>
+            <div className="product__dsc--name">
+              <div>{name}</div>
+            </div>
+            <div className="product__dsc--attributes">
+              {attributes.map((a, index) => {
+                return (
+                  <div className="product__dsc--attributes-type" key={a.id}>
+                    <div className="">{a.id}:</div>
+
+                    {a.type === "swatch" && (
+                      <div className="swatch__container">
+                        {a.items.map((item) => {
+                          const borderClass = item.value === settings[index].value ? "swatch__item--border-selected" : "";
+                          const itemStyle = { backgroundColor: item.value };
+                          const coloredBorder = { border: `1px solid ${item.value}` };
+                          return (
+                            <div
+                              key={`swatch ${item.id}`}
+                              className={`swatch__item--border ${borderClass}`}
+                              onClick={() => this.changeSettings(a.id, item.value)}
+                            >
+                              <div className="swatch__item--spacer">
+                                {item.displayValue === "White" && (
+                                  <div className={`swatch__item--white`}>
+                                    <div className="swatch__item" style={itemStyle} />
+                                  </div>
+                                )}
+                                {item.displayValue !== "White" && (
+                                  <div style={coloredBorder}>
+                                    <div className="swatch__item" style={itemStyle} />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                    {a.type === "text" && (
+                      <div className="text__container">
+                        {a.items.map((item) => {
+                          const borderClass = item.value === settings[index].value ? "selected" : "";
+                          return (
+                            <div
+                              key={`text ${item.id}`}
+                              className={`text__item ${borderClass}`}
+                              onClick={() => this.changeSettings(a.id, item.value)}
+                            >
+                              <div className="text__item--text">{item.value}</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="product__dsc--price">
+              <div className="product__dsc--attributes-type">Price:</div>
+              <div>{this.currentPrice()}</div>
+            </div>
+            <button className={`product__dsc--button ${oos}`} onClick={this.addToCart} disabled={!inStock}>
+              <div className="product__dsc--button-text">{inStock ? "add to cart" : "out of stock"}</div>
+            </button>
+            <div className="product__dsc--dsc">
+              <div dangerouslySetInnerHTML={{ __html: description }}></div>
+            </div>
           </div>
         </div>
       </div>
