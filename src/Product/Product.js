@@ -23,17 +23,12 @@ class Product extends React.Component {
       bigImg: "",
       prices: [],
       settings: [],
-      currency: "",
-      cart: [],
     };
   }
 
   componentDidMount() {
     console.log("component mounted: " + this.props.match.params.id);
     this.fetchProductData();
-    const [context] = this.context;
-    const { currency, cart } = context;
-    this.setState({ currency, cart });
   }
 
   componentDidUpdate(prevProps) {
@@ -41,10 +36,6 @@ class Product extends React.Component {
       if (prevProps.match.params.id !== this.props.match.params.id) {
         this.fetchProductData();
       }
-      console.log("changed product");
-      const [context] = this.context;
-      const { currency, cart } = context;
-      this.setState({ currency, cart });
     }
   }
 
@@ -132,7 +123,8 @@ class Product extends React.Component {
   };
 
   currentPrice = () => {
-    const { prices, currency } = this.state;
+    const { prices } = this.state;
+    const { currency } = this.context[0];
     return Helper.currentPrice(prices, currency);
   };
 

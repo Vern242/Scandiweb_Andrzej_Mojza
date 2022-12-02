@@ -2,6 +2,8 @@ import React from "react";
 import CategoryProduct from "./CategoryProduct";
 import { client, Query, Field } from "@tilework/opus";
 
+//error page for faulty category name
+
 class Category extends React.Component {
   controller = new AbortController();
   constructor(props) {

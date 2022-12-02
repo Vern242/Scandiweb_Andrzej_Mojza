@@ -52,6 +52,35 @@ class Helper {
     setState({ cart: newCart });
   }
 
+  static reduceFromCart(context, product, settingsRef) {
+    const [state, setState] = context;
+    const { cart } = state;
+
+    const { id /* brand, name, prices, attributes, gallery  */ } = product;
+    const settings = settingsRef;
+
+    for (let i = 0; i < cart.length; i++) {
+      if (id === cart[i].id) {
+        let sameSettings = true;
+        for (let j = 0; j < settings.length; j++) {
+          if (JSON.stringify(settings[j]) !== JSON.stringify(cart[i].settings[j])) {
+            sameSettings = false;
+          }
+        }
+        if (sameSettings) {
+          if (cart[i].quantity > 1) {
+            cart[i].quantity -= 1;
+            setState({ cart });
+            return;
+          }
+          cart.splice(i, 1);
+          setState({ cart });
+          return;
+        }
+      }
+    }
+  }
+
   static currentPrice(prices, currency) {
     let found = false;
     for (let i = 0; i < prices.length && !found; i++) {

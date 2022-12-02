@@ -4,29 +4,15 @@ import { Link } from "react-router-dom";
 import { AppContext } from "../Context";
 import Helper from "../Helper";
 
+//increase sizes
+
 class CategoryProduct extends React.Component {
   static contextType = AppContext;
   constructor(props) {
     super(props);
     this.state = {
       link: `/products/${this.props.product.id}`,
-      currency: "",
-      cart: [],
     };
-  }
-
-  componentDidMount() {
-    const [context] = this.context;
-    const { currency, cart } = context;
-    this.setState({ currency, cart });
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.props !== prevProps) {
-      const [context] = this.context;
-      const { currency, cart } = context;
-      this.setState({ currency, cart });
-    }
   }
 
   addToCart = () => {
@@ -38,7 +24,7 @@ class CategoryProduct extends React.Component {
 
   currentPrice = () => {
     const { prices } = this.props.product;
-    const { currency } = this.state;
+    const { currency } = this.context[0];
 
     return Helper.currentPrice(prices, currency);
   };
