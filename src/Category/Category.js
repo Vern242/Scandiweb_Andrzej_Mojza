@@ -1,10 +1,13 @@
 import React from "react";
 import CategoryProduct from "./CategoryProduct";
 import { client, Query, Field } from "@tilework/opus";
+import Helper from "../Helper";
+import { AppContext } from "../Context";
 
 //error page for faulty category name
 
 class Category extends React.Component {
+  static contextType = AppContext;
   controller = new AbortController();
   constructor(props) {
     super(props);
@@ -22,7 +25,7 @@ class Category extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props !== prevProps) {
+    if (this.props.match.params.name !== prevProps.match.params.name) {
       this.controller.abort();
       this.controller = new AbortController();
 
@@ -63,27 +66,37 @@ class Category extends React.Component {
       .then((res) => res.category)
       .then((category) => {
         this.setState({ category: category, products: category.products, loading: false, error: undefined });
-        this.activateCategoryBorder(category.name);
+        this.updateCurrentCategory(category.name);
       })
       .catch((err) => {
         if (err?.name === "AbortError") {
           return undefined;
         }
-        this.setState({ error: err.message });
+        this.setState({ error: err.message, loading: false });
         console.log(err.message);
       });
   }
 
-  activateCategoryBorder(categoryName) {
-    const navCategory = document.getElementById(categoryName);
-    navCategory.classList.add("nav__link--border");
-  }
+  updateCurrentCategory = (category) => {
+    Helper.updateCurrentCategory(category, this.context);
+  };
 
   render() {
     const { products, category, loading, error } = this.state;
 
     if (loading) return <></>;
-    if (error) return <>{error}</>;
+    if (error === "category is null")
+      return (
+        <div className="category">
+          <div className="category__name">Couldn't find the category: {this.props.match.params.name}</div>
+        </div>
+      );
+    if (error)
+      return (
+        <div className="category">
+          <div className="category__name">{error}</div>
+        </div>
+      );
     return (
       <div className="category">
         <div className="category__name">{category.name}</div>

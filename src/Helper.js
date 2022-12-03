@@ -90,6 +90,14 @@ class Helper {
       }
     }
   }
+
+  static updateCurrentCategory(category, context) {
+    const [state, setState] = context;
+    const { currentCategory } = state;
+
+    if (currentCategory === category) return;
+    setState({ currentCategory: category });
+  }
 }
 
 export default Helper;

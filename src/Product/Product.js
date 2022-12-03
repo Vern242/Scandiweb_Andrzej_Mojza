@@ -32,16 +32,9 @@ class Product extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps !== this.props) {
-      if (prevProps.match.params.id !== this.props.match.params.id) {
-        this.fetchProductData();
-      }
+    if (prevProps.match.params.id !== this.props.match.params.id) {
+      this.fetchProductData();
     }
-  }
-
-  componentWillUnmount() {
-    const navCategory = document.getElementById(this.state.category);
-    navCategory.classList.toggle("nav__link--border");
   }
 
   async fetchProductData() {
@@ -76,6 +69,7 @@ class Product extends React.Component {
           const value = att.items[0].value;
           settings.push({ id, value });
         });
+        this.updateCurrentCategory(p.category);
         this.setState({
           id: p.id,
           name: p.name,
@@ -91,17 +85,11 @@ class Product extends React.Component {
           prices: p.prices,
           settings: settings,
         });
-        this.activateCategoryBorder(p.category);
       })
       .catch((err) => {
-        this.setState({ error: err.message });
+        this.setState({ error: err.message, loading: false });
       });
   }
-
-  activateCategoryBorder = (categoryName) => {
-    const navCategory = document.getElementById(categoryName);
-    navCategory.classList.add("nav__link--border");
-  };
 
   changeSrc = (img) => {
     this.setState({ bigImg: img });
@@ -135,12 +123,26 @@ class Product extends React.Component {
     Helper.addToCart(this.context, product, settings);
   };
 
+  updateCurrentCategory = (category) => {
+    Helper.updateCurrentCategory(category, this.context);
+  };
+
   render() {
-    // add stock page for faulty url?
     const { loading, error, name, inStock, gallery, description, brand, attributes, bigImg, settings } = this.state;
     const oos = inStock ? "" : "oos";
     if (loading) return <></>;
-    if (error) return <>{error}</>;
+    if (error === "p is null")
+      return (
+        <div className="category">
+          <div className="category__name">Couldn't find the product: {this.props.match.params.id}</div>
+        </div>
+      );
+    if (error)
+      return (
+        <div className="category">
+          <div className="category__name">{error}</div>
+        </div>
+      );
     return (
       <div className="product">
         <div className="product__container">
@@ -163,71 +165,48 @@ class Product extends React.Component {
             <img className="product__bigImg" src={bigImg} alt={name} />
           </div>
           <div className="product__dsc">
-            <div className="product__dsc--brand">
-              <div>{brand}</div>
-            </div>
-            <div className="product__dsc--name">
-              <div>{name}</div>
-            </div>
+            <div className="product__dsc--brand">{brand}</div>
+            <div className="product__dsc--name">{name}</div>
             <div className="product__dsc--attributes">
               {attributes.map((a, index) => {
+                const type = a.type;
+                const container = `${type}__container`;
                 return (
-                  <div className="product__dsc--attributes-type" key={a.id}>
-                    <div className="">{a.id}:</div>
+                  <React.Fragment key={`product att ${a.id}`}>
+                    <div className="product__dsc--attributes-type">{a.id}:</div>
+                    <div className={container}>
+                      {a.items.map((item) => {
+                        let style = { border: `1px solid ${item.value}` };
+                        const borderClass = item.value === settings[index].value ? "selected" : "";
+                        const swatchStyle = { backgroundColor: item.value };
 
-                    {a.type === "swatch" && (
-                      <div className="swatch__container">
-                        {a.items.map((item) => {
-                          const borderClass = item.value === settings[index].value ? "swatch__item--border-selected" : "";
-                          const itemStyle = { backgroundColor: item.value };
-                          const coloredBorder = { border: `1px solid ${item.value}` };
-                          return (
-                            <div
-                              key={`swatch ${item.id}`}
-                              className={`swatch__item--border ${borderClass}`}
-                              onClick={() => this.changeSettings(a.id, item.value)}
-                            >
-                              <div className="swatch__item--spacer">
-                                {item.displayValue === "White" && (
-                                  <div className={`swatch__item--white`}>
-                                    <div className="swatch__item" style={itemStyle} />
-                                  </div>
-                                )}
-                                {item.displayValue !== "White" && (
-                                  <div style={coloredBorder}>
-                                    <div className="swatch__item" style={itemStyle} />
-                                  </div>
-                                )}
+                        if (item.displayValue === "White") style = { border: `1px solid #1d1f22` };
+                        return (
+                          <React.Fragment key={`${type} ${item.id}`}>
+                            {type === "text" && (
+                              <div className={`text__item ${borderClass}`} onClick={() => this.changeSettings(a.id, item.value)}>
+                                <div className="text__item--text">{item.value}</div>
                               </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                    {a.type === "text" && (
-                      <div className="text__container">
-                        {a.items.map((item) => {
-                          const borderClass = item.value === settings[index].value ? "selected" : "";
-                          return (
-                            <div
-                              key={`text ${item.id}`}
-                              className={`text__item ${borderClass}`}
-                              onClick={() => this.changeSettings(a.id, item.value)}
-                            >
-                              <div className="text__item--text">{item.value}</div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
+                            )}
+                            {type === "swatch" && (
+                              <div className={`swatch__item--border ${borderClass}`} onClick={() => this.changeSettings(a.id, item.value)}>
+                                <div className="swatch__item--spacer">
+                                  <div style={style}>
+                                    <div className="swatch__item" style={swatchStyle} />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </React.Fragment>
+                        );
+                      })}
+                    </div>
+                  </React.Fragment>
                 );
               })}
             </div>
-            <div className="product__dsc--price">
-              <div className="product__dsc--attributes-type">Price:</div>
-              <div>{this.currentPrice()}</div>
-            </div>
+            <div className="product__dsc--attributes-type">Price:</div>
+            <div className="product__dsc--price">{this.currentPrice()}</div>
             <button className={`product__dsc--button ${oos}`} onClick={this.addToCart} disabled={!inStock}>
               <div className="product__dsc--button-text">{inStock ? "add to cart" : "out of stock"}</div>
             </button>

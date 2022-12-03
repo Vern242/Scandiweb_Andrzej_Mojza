@@ -5,7 +5,6 @@ import { NavLink } from "react-router-dom";
 import Helper from "../Helper";
 import { AppContext } from "../Context";
 
-//      experiment around more with background image values to find a better fit for product page
 //      turn cart into another component - create another css file for it
 
 class Navbar extends React.Component {
@@ -53,7 +52,7 @@ class Navbar extends React.Component {
     const buttonStyle = this.state.buttonStyle;
 
     buttonStyle.transform = "rotate(0.5turn)";
-    buttonStyle["padding-top"] = "";
+    buttonStyle["padding-top"] = "6px";
     dropdownStyle.display = "none";
   };
 
@@ -70,7 +69,8 @@ class Navbar extends React.Component {
     const currency = symbol;
     this.closeDropdown();
 
-    const [, setContext] = this.context;
+    const [context, setContext] = this.context;
+    if (context.currency === symbol) return;
     setContext({ currency });
   };
 
@@ -84,14 +84,14 @@ class Navbar extends React.Component {
   };
 
   cartSum = () => {
-    const { cart } = this.context[0];
+    const { cart, currency } = this.context[0];
     if (cart.length > 0) {
       let sum = 0;
       for (let i = 0; i < cart.length; i++) {
         const price = this.currentPrice(cart[i]).split(" ")[1];
         sum += cart[i].quantity * Number(price);
       }
-      return parseFloat(sum).toFixed(2);
+      return `${currency}${parseFloat(sum).toFixed(2)}`;
     }
   };
 
@@ -156,16 +156,17 @@ class Navbar extends React.Component {
 
   render() {
     const { loading } = this.state;
-    const { currency, cart } = this.context[0];
+    const { currency, cart, currentCategory } = this.context[0];
     if (loading) return <></>;
     return (
       <nav className="nav">
         <ul className="nav__list">
           <ul className="nav__section left">
             {this.props.categories.map((category, index) => {
+              const border = category.name === currentCategory ? "nav__link--border" : "";
               return (
                 <li key={`category${index}`}>
-                  <NavLink activeClassName="nav__link--border" className="nav__link" to={`/categories/${category.name}`} id={category.name}>
+                  <NavLink className={`nav__link ${border}`} to={`/categories/${category.name}`} id={category.name}>
                     {category.name}
                   </NavLink>
                 </li>
@@ -206,71 +207,86 @@ class Navbar extends React.Component {
                     <div className="cart__title">
                       my bag, <span className="cart__title--quantity">{this.cartQuantity()} items</span>
                     </div>
-                    {cart.map((product, index) => {
-                      const backgroundImg = product.gallery[0];
-                      const img = { backgroundImage: `url(${backgroundImg})` };
-                      return (
-                        <div key={`cart_${product.id}${index}`} className="cart__item">
-                          <div className="cart__item--details">
-                            <div className="cart__item--brand-name">{product.brand}</div>
-                            <div className="cart__item--brand-name">{product.name}</div>
-                            <div className="cart__item--price">{this.currentPrice(product)}</div>
-                            {product.attributes.map((att, index) => {
-                              const type = att.type;
-                              const setting = product.settings[index];
-                              return (
-                                <React.Fragment key={`${type} ${index}`}>
-                                  <div className="cart__item--att">{att.id}:</div>
-                                  <div className="cart__item-att-container ">
-                                    {att.items.map((item) => {
-                                      let style = { border: `1px solid ${item.value}` };
-                                      let selected = "";
-                                      const background = { background: `${item.value}` };
-                                      if (item.displayValue === "White") style = { border: `1px solid #1d1f22` };
-                                      if (setting.value === item.value) selected = "selected";
-                                      return (
-                                        <React.Fragment key={`${type} ${index} ${item.value}`}>
-                                          {type === "text" && <div className={`cart__item--att-text ${selected}`}>{item.value}</div>}
-                                          {type === "swatch" && (
-                                            <div className={`cart__item--att-swatch-border ${selected}`}>
-                                              <div className="spacer">
-                                                <div style={style}>
-                                                  <div className={`cart__item--att-swatch`} style={background} />
+                    <div className={`cart__item--container scroll`}>
+                      {cart.length === 0 && <div className="cart__item--empty">Your items will be displayed here</div>}
+                      {cart.map((product, index, arr) => {
+                        const gap = index + 1 !== arr.length ? "gap" : "";
+                        const backgroundImg = product.gallery[0];
+                        const img = { backgroundImage: `url(${backgroundImg})` };
+                        return (
+                          <div key={`cart_${product.id}${index}`} className={`cart__item ${gap}`}>
+                            <div className="cart__item--details">
+                              <div className="cart__item--brand-name">{product.brand}</div>
+                              <div className="cart__item--brand-name">{product.name}</div>
+                              <div className="cart__item--price">{this.currentPrice(product)}</div>
+                              {product.attributes.map((att, index) => {
+                                const type = att.type;
+                                const setting = product.settings[index];
+                                return (
+                                  <React.Fragment key={`${type} ${index}`}>
+                                    <div className="cart__item--att">{att.id}:</div>
+                                    <div className="cart__item-att-container ">
+                                      {att.items.map((item) => {
+                                        let style = { border: `1px solid ${item.value}` };
+                                        let selected = "";
+                                        const background = { background: `${item.value}` };
+                                        if (item.displayValue === "White") style = { border: `1px solid #1d1f22` };
+                                        if (setting.value === item.value) selected = "selected";
+                                        return (
+                                          <React.Fragment key={`${type} ${index} ${item.value}`}>
+                                            {type === "text" && <div className={`cart__item--att-text ${selected}`}>{item.value}</div>}
+                                            {type === "swatch" && (
+                                              <div className={`cart__item--att-swatch-border ${selected}`}>
+                                                <div className="spacer">
+                                                  <div style={style}>
+                                                    <div className={`cart__item--att-swatch`} style={background} />
+                                                  </div>
                                                 </div>
                                               </div>
-                                            </div>
-                                          )}
-                                        </React.Fragment>
-                                      );
-                                    })}
-                                  </div>
-                                </React.Fragment>
-                              );
-                            })}
-                          </div>
-                          <div className="cart__item--end">
-                            <div className="cart__item--quantity">
-                              <button className="cart__item--quantity-button" onClick={() => this.addToCart(product)}>
-                                +
-                              </button>
-                              <span className="cart__item--quantity--text">{product.quantity}</span>
-                              <button className="cart__item--quantity-button" onClick={() => this.reduceFromCart(product)}>
-                                &ndash;
-                              </button>
+                                            )}
+                                          </React.Fragment>
+                                        );
+                                      })}
+                                    </div>
+                                  </React.Fragment>
+                                );
+                              })}
                             </div>
-                            <div className="cart__item--image" style={img} />
+                            <div className="cart__item--end">
+                              <div className="cart__item--quantity">
+                                <button className="cart__item--quantity-button" onClick={() => this.addToCart(product)}>
+                                  +
+                                </button>
+                                <span className="cart__item--quantity--text">{product.quantity}</span>
+                                <button className="cart__item--quantity-button" onClick={() => this.reduceFromCart(product)}>
+                                  &ndash;
+                                </button>
+                              </div>
+                              <div className="cart__item--image" style={img} />
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
-
+                        );
+                      })}
+                    </div>
                     <div className="cart__total">
                       total
-                      <span className="cart__total--sum">{this.cartSum()}</span>
+                      <span className="cart__total--sum">
+                        {this.cartSum()}
+                        {cart.length === 0 && (
+                          <>
+                            {currency}
+                            {cart.length.toFixed(2)}
+                          </>
+                        )}
+                      </span>
                     </div>
                     <div className="cart__button--container">
-                      <button className="cart__button cart__button--bag">view bag</button>
-                      <button className="cart__button cart__button--checkout">check out</button>
+                      <button className="cart__button cart__button--bag" disabled={cart.length === 0}>
+                        view bag
+                      </button>
+                      <button className="cart__button cart__button--checkout" disabled={cart.length === 0}>
+                        check out
+                      </button>
                     </div>
                   </div>
                 </div>

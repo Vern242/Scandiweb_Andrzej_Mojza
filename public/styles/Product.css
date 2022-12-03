@@ -37,12 +37,13 @@
 }
 
 .product__bigImg {
-  margin-left: 40px;
-  max-width: 710px;
+  margin-left: 100px;
+  width: 710px;
+  height: auto;
 }
 
 .product__dsc {
-  margin-left: 100px;
+  margin-left: 200px;
 }
 
 .product__dsc--brand {
@@ -102,8 +103,9 @@
   cursor: pointer;
 }
 
-.swatch__item--border-selected {
+.swatch__item--border.selected {
   border: 1px solid #5ece7b;
+  cursor: pointer;
 }
 
 /* .swatch__item--border:hover {
@@ -112,10 +114,6 @@
 
 .swatch__item--white {
   border: 1px solid #1d1f22;
-}
-
-.swatch__item--white.swatch__item--border-selected {
-  border: 1px solid transparent;
 }
 
 .swatch__item--spacer {

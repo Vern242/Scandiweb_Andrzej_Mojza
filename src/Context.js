@@ -8,6 +8,7 @@ class Context extends React.Component {
     this.state = {
       currency: "",
       cart: [],
+      currentCategory: "",
     };
   }
 
