@@ -3,8 +3,6 @@ import { client, Field, Query } from "@tilework/opus";
 import Helper from "../Helper";
 import { AppContext } from "../Context";
 
-//add abortsignaler?
-
 class Product extends React.Component {
   static contextType = AppContext;
   constructor(props) {

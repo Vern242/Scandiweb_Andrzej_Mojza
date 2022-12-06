@@ -1,0 +1,4 @@
+add aborting to fetching in components that require it //abortsignaler
+change sizes of css elements // fix naming
+turn cart into another component - create another css file for it
+add default route if one not found to APP

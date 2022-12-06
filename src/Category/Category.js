@@ -4,8 +4,6 @@ import { client, Query, Field } from "@tilework/opus";
 import Helper from "../Helper";
 import { AppContext } from "../Context";
 
-//error page for faulty category name
-
 class Category extends React.Component {
   static contextType = AppContext;
   controller = new AbortController();

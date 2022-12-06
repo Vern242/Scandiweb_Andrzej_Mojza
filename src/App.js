@@ -60,9 +60,7 @@ class App extends React.Component {
   }
 
   render() {
-    //add default route if one not found
     const { loading, error, categories, currencies } = this.state;
-
     if (error) return <>{error}</>;
     if (loading) return <></>;
     return (
@@ -75,9 +73,6 @@ class App extends React.Component {
           <Route component={Category} path={`/categories/:name`} />;
           <Route component={Product} path={`/products/:id`} />;
           <Route component={Cart} path="/cart" />;
-          {
-            // add default route if one not found
-          }
         </Switch>
       </BrowserRouter>
     );

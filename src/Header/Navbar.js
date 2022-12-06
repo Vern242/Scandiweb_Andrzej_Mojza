@@ -5,9 +5,6 @@ import { Link, NavLink } from "react-router-dom";
 import Helper from "../Helper";
 import { AppContext } from "../Context";
 
-//      turn cart into another component - create another css file for it
-//      fix cart buttons to scale in width
-
 class Navbar extends React.Component {
   static contextType = AppContext;
   constructor(props) {
@@ -269,11 +266,9 @@ class Navbar extends React.Component {
                     </div>
                     <div className="minicart__button--container">
                       <Link className="minicart__link" to={"/cart"} onClick={this.closeMinicart}>
-                        <button className="minicart__button minicart__button--bag" disabled={cart.length === 0}>
-                          view bag
-                        </button>
+                        <button className="minicart__button minicart__button--bag">view bag</button>
                       </Link>
-                      <Link className="minicart__link" to={"/checkout"}>
+                      <Link className="minicart__link" to={"/checkout"} onClick={this.closeMinicart}>
                         <button className="minicart__button minicart__button--checkout" disabled={cart.length === 0}>
                           check out
                         </button>

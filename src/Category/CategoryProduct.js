@@ -4,16 +4,8 @@ import { Link } from "react-router-dom";
 import { AppContext } from "../Context";
 import Helper from "../Helper";
 
-//increase sizes
-
 class CategoryProduct extends React.Component {
   static contextType = AppContext;
-  constructor(props) {
-    super(props);
-    this.state = {
-      link: `/products/${this.props.product.id}`,
-    };
-  }
 
   addToCart = () => {
     const { id, brand, name, prices, attributes, gallery, settings } = this.props.product;
@@ -31,7 +23,7 @@ class CategoryProduct extends React.Component {
 
   render() {
     const { product } = this.props;
-    const { link } = this.state;
+    const link = `/products/${product.id}`;
     const { name, gallery, brand, inStock } = product;
     const imageStyle = { backgroundImage: `url(${gallery[0]})` };
 
