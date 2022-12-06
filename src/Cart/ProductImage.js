@@ -28,9 +28,10 @@ class ProductImage extends React.Component {
     const { gallery } = this.props;
     const { galleryPosition } = this.state;
     const imgStyle = { backgroundImage: `URL(${gallery[galleryPosition]})` };
+    const noOtherPictures = gallery.length < 2 ? "empty" : "";
     return (
       <div className="cart__img" style={imgStyle}>
-        <div className="cart__imgButtonContainer ">
+        <div className={`cart__imgButtonContainer ${noOtherPictures}`}>
           <button className="cart__imgButton" onClick={() => this.changeImage("<")}>
             <span className="imgButton__arrow imgButton__arrow--left"></span>
           </button>
