@@ -250,6 +250,7 @@ li {
 .minicart__item--container.scroll {
   max-height: 550px;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .minicart__item--empty {
@@ -304,7 +305,6 @@ li {
 }
 .minicart__item-att-container {
   display: flex;
-  flex-wrap: wrap;
   gap: 8px 6px;
 }
 .minicart__item--att-text {
@@ -437,6 +437,9 @@ li {
   letter-spacing: 0em;
   text-align: center;
   text-transform: uppercase;
+}
+.minicart__button:hover {
+  opacity: 0.8;
 }
 
 .minicart__button--bag {
