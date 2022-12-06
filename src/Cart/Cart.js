@@ -17,18 +17,12 @@ class Cart extends React.Component {
     };
   }
 
-  addToCart = () => {};
+  addToCart = (product) => {
+    Helper.addToCart(this.context, product, product.settings);
+  };
 
-  reduceFromCart = () => {};
-
-  changeImg = (imgStyle, gallery, direction) => {
-    const url = imgStyle.backgroundImage.split("(")[1].split(")")[0];
-    let position = undefined;
-    for (let i = 0; i < gallery.length; i++) {
-      if (url === gallery[i]) position = i;
-    }
-    console.log(position);
-    imgStyle = { backgroundImage: `URL(${gallery[position + 1]})` };
+  reduceFromCart = (product) => {
+    Helper.reduceFromCart(this.context, product, product.settings);
   };
 
   currentPrice = (prices) => {
@@ -44,8 +38,9 @@ class Cart extends React.Component {
   };
 
   cartSum = () => {
+    const { currency } = this.context[0];
     const sum = Helper.cartSum(this.context);
-    if (sum === 0) return `${this.context[0].currency}0.00`;
+    if (sum === 0) return `${currency}0.00`;
     return sum;
   };
 
@@ -54,39 +49,69 @@ class Cart extends React.Component {
   };
 
   render() {
-    const { cart, currency } = this.context[0];
+    const { cart } = this.context[0];
     return (
       <div className="cart">
         <div className="cart__name">cart</div>
-        {cart.map((item, index) => {
+        {cart.map((product, index) => {
           return (
-            <React.Fragment key={`cart ${item.id} ${index}`}>
+            <React.Fragment key={`cart ${product.id} ${index}`}>
               <hr className="cart__line" />
               <div className="cart__item">
                 <div className="cart__itemSettings">
-                  <div className="cart__brand">{item.brand}</div>
-                  <div className="cart__itemName">{item.name}</div>
-                  <div className="cart__price">{this.currentPrice(item.prices)}</div>
-                  {/* attributes mapped*/}
+                  <div className="cart__brand">{product.brand}</div>
+                  <div className="cart__itemName">{product.name}</div>
+                  <div className="cart__price">{this.currentPrice(product.prices)}</div>
+                  {product.attributes.map((att, index) => {
+                    const type = att.type;
+                    const setting = product.settings[index];
+                    return (
+                      <React.Fragment key={`cart att ${index}`}>
+                        <div className="cart__attribute">{att.name}:</div>
+                        <div className="cart__attribute--container">
+                          {att.items.map((item, index) => {
+                            let style = { border: `1px solid ${item.value}` };
+                            let selected = "";
+                            const background = { background: `${item.value}` };
+                            if (item.displayValue === "White") style = { border: `1px solid #1d1f22` };
+                            if (setting.value === item.value) selected = "selected";
+                            return (
+                              <React.Fragment key={`att${index} item${index}`}>
+                                {type === "text" && <div className={`cart__text ${selected}`}>{item.value}</div>}
+                                {type === "swatch" && (
+                                  <div className={`cart__swatch--border ${selected}`}>
+                                    <div className="spacer">
+                                      <div style={style}>
+                                        <div className={`cart__swatch`} style={background} />
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </React.Fragment>
+                            );
+                          })}
+                        </div>
+                      </React.Fragment>
+                    );
+                  })}
                 </div>
                 <div className="cart__itemEnd">
                   <div className="cart__quantity">
-                    <div className="cart__quantity--button">
+                    <div className="cart__quantity--button" onClick={() => this.addToCart(product)}>
                       <span className="cart__plus">+</span>
                     </div>
-                    <div className="cart__quantity--text">{item.quantity}</div>
-                    <div className="cart__quantity--button">
+                    <div className="cart__quantity--text">{product.quantity}</div>
+                    <div className="cart__quantity--button" onClick={() => this.reduceFromCart(product)}>
                       <span className="cart__minus">&ndash;</span>
                     </div>
                   </div>
-                  <ProductImage gallery={item.gallery} />
+                  <ProductImage gallery={product.gallery} />
                 </div>
               </div>
             </React.Fragment>
           );
         })}
         {cart.length > 0 && <hr className="cart__line" />}
-
         <div className="cart__overview">
           <div className="cart__overviewBlock">
             <div className="cart__dsc">tax 21%:</div>
