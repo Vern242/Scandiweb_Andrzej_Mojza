@@ -91,6 +91,28 @@ class Helper {
     }
   }
 
+  static cartQuantity(context) {
+    const { cart } = context[0];
+    let quantity = 0;
+    for (let i = 0; i < cart.length; i++) {
+      quantity += cart[i].quantity;
+    }
+    return quantity;
+  }
+
+  static cartSum(context) {
+    const { cart, currency } = context[0];
+    let sum = 0;
+    if (cart.length > 0) {
+      for (let i = 0; i < cart.length; i++) {
+        const price = this.currentPrice(cart[i].prices, currency).split(" ")[1];
+        sum += cart[i].quantity * Number(price);
+      }
+      return `${currency}${parseFloat(sum).toFixed(2)}`;
+    }
+    return 0;
+  }
+
   static updateCurrentCategory(category, context) {
     const [state, setState] = context;
     const { currentCategory } = state;

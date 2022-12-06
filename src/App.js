@@ -2,6 +2,7 @@ import React from "react";
 import Category from "./Category/Category";
 import Product from "./Product/Product";
 import Navbar from "./Header/Navbar";
+import Cart from "./Cart/Cart";
 import { client, Query } from "@tilework/opus";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { AppContext } from "./Context";
@@ -73,6 +74,7 @@ class App extends React.Component {
         <Switch>
           <Route component={Category} path={`/categories/:name`} />;
           <Route component={Product} path={`/products/:id`} />;
+          <Route component={Cart} path="/cart" />;
           {
             // add default route if one not found
           }
