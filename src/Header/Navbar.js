@@ -1,11 +1,12 @@
 import React from "react";
 import logoImg from "../Images/Brand_icon.png";
 import cartImg from "../Images/Empty_cart.png";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import Helper from "../Helper";
 import { AppContext } from "../Context";
 
 //      turn cart into another component - create another css file for it
+//      fix cart buttons to scale in width
 
 class Navbar extends React.Component {
   static contextType = AppContext;
@@ -25,7 +26,7 @@ class Navbar extends React.Component {
     this.setState({ buttonStyle, dropdownStyle, loading: false });
 
     document.body.addEventListener("mousedown", this.exitDropdown);
-    document.body.addEventListener("mousedown", this.exitCart);
+    document.body.addEventListener("mousedown", this.exitMinicart);
   }
 
   getStyle(classname) {
@@ -84,15 +85,9 @@ class Navbar extends React.Component {
   };
 
   cartSum = () => {
-    const { cart, currency } = this.context[0];
-    if (cart.length > 0) {
-      let sum = 0;
-      for (let i = 0; i < cart.length; i++) {
-        const price = this.currentPrice(cart[i]).split(" ")[1];
-        sum += cart[i].quantity * Number(price);
-      }
-      return `${currency}${parseFloat(sum).toFixed(2)}`;
-    }
+    const sum = Helper.cartSum(this.context);
+    if (sum === 0) return `${this.context[0].currency}0.00`;
+    else return sum;
   };
 
   currentPrice = (product) => {
@@ -115,20 +110,20 @@ class Navbar extends React.Component {
     Helper.reduceFromCart(this.context, cartProduct, settings);
   };
 
-  toggleCart = () => {
+  toggleMinicart = () => {
     const backdrop = document.querySelector(".modal__backdrop");
     const bStyle = backdrop.style;
 
     if (bStyle.display === "") {
-      this.openCart();
+      this.openMinicart();
     } else if (bStyle.display === "block") {
-      this.closeCart();
+      this.closeMinicart();
     }
   };
 
-  openCart = () => {
+  openMinicart = () => {
     const backdrop = document.querySelector(".modal__backdrop");
-    const modal = document.querySelector(".cart__container");
+    const modal = document.querySelector(".minicart__container");
     const bStyle = backdrop.style;
     const mStyle = modal.style;
 
@@ -136,9 +131,9 @@ class Navbar extends React.Component {
     mStyle.display = "block";
   };
 
-  closeCart = () => {
+  closeMinicart = () => {
     const backdrop = document.querySelector(".modal__backdrop");
-    const modal = document.querySelector(".cart__container");
+    const modal = document.querySelector(".minicart__container");
     const bStyle = backdrop.style;
     const mStyle = modal.style;
 
@@ -146,11 +141,11 @@ class Navbar extends React.Component {
     mStyle.display = "";
   };
 
-  exitCart = (event) => {
-    const cart = document.getElementById("nav__cart");
+  exitMinicart = (event) => {
+    const cart = document.getElementById("nav__minicart");
 
     if (!cart.contains(event.target)) {
-      this.closeCart();
+      this.closeMinicart();
     }
   };
 
@@ -193,39 +188,39 @@ class Navbar extends React.Component {
                   })}
                 </div>
               </li>
-              <li id="nav__cart">
-                <div className="nav__cart--button" onClick={this.toggleCart}>
-                  <img className="nav__cart--icon" src={cartImg} alt="Cart icon" />
+              <li id="nav__minicart">
+                <div className="nav__minicart--button" onClick={this.toggleMinicart}>
+                  <img className="nav__minicart--icon" src={cartImg} alt="Minicart icon" />
                   {cart.length > 0 && (
-                    <span className="nav__cart--dot">
-                      <span className="nav__cart--dot--text">{this.cartQuantity()}</span>
+                    <span className="nav__minicart--dot">
+                      <span className="nav__minicart--dot--text">{this.cartQuantity()}</span>
                     </span>
                   )}
                 </div>
-                <div className="cart__container">
-                  <div className="cart__contents">
-                    <div className="cart__title">
-                      my bag, <span className="cart__title--quantity">{this.cartQuantity()} items</span>
+                <div className="minicart__container">
+                  <div className="minicart__contents">
+                    <div className="minicart__title">
+                      my bag, <span className="minicart__title--quantity">{this.cartQuantity()} items</span>
                     </div>
-                    <div className={`cart__item--container scroll`}>
-                      {cart.length === 0 && <div className="cart__item--empty">Your items will be displayed here</div>}
+                    <div className={`minicart__item--container scroll`}>
+                      {cart.length === 0 && <div className="minicart__item--empty">Your items will be displayed here</div>}
                       {cart.map((product, index, arr) => {
                         const gap = index + 1 !== arr.length ? "gap" : "";
                         const backgroundImg = product.gallery[0];
                         const img = { backgroundImage: `url(${backgroundImg})` };
                         return (
-                          <div key={`cart_${product.id}${index}`} className={`cart__item ${gap}`}>
-                            <div className="cart__item--details">
-                              <div className="cart__item--brand-name">{product.brand}</div>
-                              <div className="cart__item--brand-name">{product.name}</div>
-                              <div className="cart__item--price">{this.currentPrice(product)}</div>
+                          <div key={`minicart_${product.id}${index}`} className={`minicart__item ${gap}`}>
+                            <div className="minicart__item--details">
+                              <div className="minicart__item--brand-name">{product.brand}</div>
+                              <div className="minicart__item--brand-name">{product.name}</div>
+                              <div className="minicart__item--price">{this.currentPrice(product)}</div>
                               {product.attributes.map((att, index) => {
                                 const type = att.type;
                                 const setting = product.settings[index];
                                 return (
                                   <React.Fragment key={`${type} ${index}`}>
-                                    <div className="cart__item--att">{att.id}:</div>
-                                    <div className="cart__item-att-container ">
+                                    <div className="minicart__item--att">{att.id}:</div>
+                                    <div className="minicart__item-att-container ">
                                       {att.items.map((item) => {
                                         let style = { border: `1px solid ${item.value}` };
                                         let selected = "";
@@ -234,12 +229,12 @@ class Navbar extends React.Component {
                                         if (setting.value === item.value) selected = "selected";
                                         return (
                                           <React.Fragment key={`${type} ${index} ${item.value}`}>
-                                            {type === "text" && <div className={`cart__item--att-text ${selected}`}>{item.value}</div>}
+                                            {type === "text" && <div className={`minicart__item--att-text ${selected}`}>{item.value}</div>}
                                             {type === "swatch" && (
-                                              <div className={`cart__item--att-swatch-border ${selected}`}>
+                                              <div className={`minicart__item--att-swatch-border ${selected}`}>
                                                 <div className="spacer">
                                                   <div style={style}>
-                                                    <div className={`cart__item--att-swatch`} style={background} />
+                                                    <div className={`minicart__item--att-swatch`} style={background} />
                                                   </div>
                                                 </div>
                                               </div>
@@ -252,41 +247,37 @@ class Navbar extends React.Component {
                                 );
                               })}
                             </div>
-                            <div className="cart__item--end">
-                              <div className="cart__item--quantity">
-                                <button className="cart__item--quantity-button" onClick={() => this.addToCart(product)}>
+                            <div className="minicart__item--end">
+                              <div className="minicart__item--quantity">
+                                <button className="minicart__item--quantity-button" onClick={() => this.addToCart(product)}>
                                   +
                                 </button>
-                                <span className="cart__item--quantity--text">{product.quantity}</span>
-                                <button className="cart__item--quantity-button" onClick={() => this.reduceFromCart(product)}>
+                                <span className="minicart__item--quantity-text">{product.quantity}</span>
+                                <button className="minicart__item--quantity-button" onClick={() => this.reduceFromCart(product)}>
                                   &ndash;
                                 </button>
                               </div>
-                              <div className="cart__item--image" style={img} />
+                              <div className="minicart__item--image" style={img} />
                             </div>
                           </div>
                         );
                       })}
                     </div>
-                    <div className="cart__total">
+                    <div className="minicart__total">
                       total
-                      <span className="cart__total--sum">
-                        {this.cartSum()}
-                        {cart.length === 0 && (
-                          <>
-                            {currency}
-                            {cart.length.toFixed(2)}
-                          </>
-                        )}
-                      </span>
+                      <span className="minicart__total--sum">{this.cartSum()}</span>
                     </div>
-                    <div className="cart__button--container">
-                      <button className="cart__button cart__button--bag" disabled={cart.length === 0}>
-                        view bag
-                      </button>
-                      <button className="cart__button cart__button--checkout" disabled={cart.length === 0}>
-                        check out
-                      </button>
+                    <div className="minicart__button--container">
+                      <Link className="minicart__link" to={"/cart"} onClick={this.closeMinicart}>
+                        <button className="minicart__button minicart__button--bag" disabled={cart.length === 0}>
+                          view bag
+                        </button>
+                      </Link>
+                      <Link className="minicart__link" to={"/checkout"}>
+                        <button className="minicart__button minicart__button--checkout" disabled={cart.length === 0}>
+                          check out
+                        </button>
+                      </Link>
                     </div>
                   </div>
                 </div>
