@@ -47,19 +47,19 @@ class Navbar extends React.Component {
 
   closeDropdown = () => {
     const dropdownStyle = this.state.dropdownStyle;
-    const buttonStyle = this.state.buttonStyle;
+    const arrow = document.querySelector(".dropdown__arrow");
+    arrow.style.transform = "rotate(45deg)";
 
-    buttonStyle.transform = "rotate(0.5turn)";
-    buttonStyle["padding-top"] = "6px";
+    arrow.style["margin-bottom"] = "4px";
     dropdownStyle.display = "none";
   };
 
   openDrodpdown = () => {
     const dropdownStyle = this.state.dropdownStyle;
-    const buttonStyle = this.state.buttonStyle;
+    const arrow = document.querySelector(".dropdown__arrow");
+    arrow.style.transform = "rotate(-135deg)";
 
-    buttonStyle.transform = "";
-    buttonStyle["padding-top"] = "10px";
+    arrow.style["margin-bottom"] = "-2px";
     dropdownStyle.display = "inline-block";
   };
 
@@ -173,7 +173,7 @@ class Navbar extends React.Component {
               <li className="nav__currency">
                 <span className="nav__currency--display">{currency}</span>
                 <button className="nav__button" onMouseDown={this.toggleDropdown} id="nav__button">
-                  ^
+                  <span className="dropdown__arrow"></span>
                 </button>
                 <div className="nav__dropdown" id="nav__dropdown">
                   {this.props.currencies.map((currency) => {
