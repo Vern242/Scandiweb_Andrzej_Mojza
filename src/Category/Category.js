@@ -39,25 +39,26 @@ class Category extends React.Component {
 
   async fetchProducts() {
     const query = new Query("category", true);
-    query.addField("name");
-    query.addField(
-      new Field("products")
-        .addField("id")
-        .addField("name")
-        .addField("inStock")
-        .addField("gallery")
-        .addField("category")
-        .addField("brand")
-        .addField(new Field("prices").addField("amount").addField(new Field("currency").addField("label").addField("symbol")))
-        .addField(
-          new Field("attributes")
-            .addField("id")
-            .addField("name")
-            .addField("type")
-            .addField(new Field("items").addField("displayValue").addField("value").addField("id"))
-        )
-    );
-    query.addArgument("input", "CategoryInput", { title: this.props.match.params.name });
+    query
+      .addArgument("input", "CategoryInput", { title: this.props.match.params.name })
+      .addField("name")
+      .addField(
+        new Field("products")
+          .addField("id")
+          .addField("name")
+          .addField("inStock")
+          .addField("gallery")
+          .addField("category")
+          .addField("brand")
+          .addField(new Field("prices").addField("amount").addField(new Field("currency").addField("label").addField("symbol")))
+          .addField(
+            new Field("attributes")
+              .addField("id")
+              .addField("name")
+              .addField("type")
+              .addField(new Field("items").addField("displayValue").addField("value").addField("id"))
+          )
+      );
 
     client
       .post(query, { signal: this.controller.signal })
