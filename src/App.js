@@ -3,6 +3,7 @@ import Category from "./Category/Category";
 import Product from "./Product/Product";
 import Navbar from "./Header/Navbar";
 import Cart from "./Cart/Cart";
+import Home from "./Home";
 import { client, Query } from "@tilework/opus";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { AppContext } from "./Context";
@@ -61,7 +62,12 @@ class App extends React.Component {
 
   render() {
     const { loading, error, categories, currencies } = this.state;
-    if (error) return <>{error}</>;
+    if (error)
+      return (
+        <div className="category">
+          <div className="category__name">{error}</div>
+        </div>
+      );
     if (loading) return <></>;
     return (
       <BrowserRouter>
@@ -70,9 +76,10 @@ class App extends React.Component {
           <Navbar categories={categories} currencies={currencies} />
         </div>
         <Switch>
-          <Route component={Category} path={`/categories/:name`} />;
-          <Route component={Product} path={`/products/:id`} />;
+          <Route component={Category} path="/categories/:name" />;
+          <Route component={Product} path="/products/:id" />;
           <Route component={Cart} path="/cart" />;
+          <Route component={() => <Home category={categories[0]} />} path="*" />;
         </Switch>
       </BrowserRouter>
     );
