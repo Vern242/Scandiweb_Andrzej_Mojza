@@ -5,6 +5,7 @@ import { AppContext } from "../Context";
 
 class Product extends React.Component {
   static contextType = AppContext;
+  controller = new AbortController();
   constructor(props) {
     super(props);
     this.state = {
@@ -25,22 +26,29 @@ class Product extends React.Component {
   }
 
   componentDidMount() {
-    console.log("component mounted: " + this.props.match.params.id);
+    console.log("Mounted: Product");
     this.fetchProductData();
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.match.params.id !== this.props.match.params.id) {
+      this.controller.abort();
+      this.controller = new AbortController();
+
       this.fetchProductData();
+      console.log("Updated: Product");
     }
   }
 
-  async fetchProductData() {
-    const id = this.props.match.params.id;
+  componentWillUnmount() {
+    console.log("Aborted: Product");
+    this.controller.abort();
+  }
 
+  async fetchProductData() {
     const query = new Query("product", true);
     query
-      .addArgument("id", "String!", id)
+      .addArgument("id", "String!", this.props.match.params.id)
       .addField("id")
       .addField("name")
       .addField("inStock")
@@ -58,7 +66,7 @@ class Product extends React.Component {
       .addField(new Field("prices").addField("amount").addField(new Field("currency").addField("label").addField("symbol")));
 
     client
-      .post(query)
+      .post(query, { signal: this.controller.signal })
       .then((res) => res.product)
       .then((p) => {
         const settings = [];
@@ -85,11 +93,15 @@ class Product extends React.Component {
         });
       })
       .catch((err) => {
+        if (err?.name === "AbortError") {
+          return undefined;
+        }
         this.setState({ error: err.message, loading: false });
+        console.log(err.message);
       });
   }
 
-  changeSrc = (img) => {
+  changeBigImg = (img) => {
     this.setState({ bigImg: img });
   };
 
@@ -153,7 +165,7 @@ class Product extends React.Component {
                   key={`img${index}`}
                   className={`product__gallery--item ${borderClass}`}
                   style={this.backgroundImgStyle(img)}
-                  onClick={() => this.changeSrc(img)}
+                  onClick={() => this.changeBigImg(img)}
                   alt={`${brand} ${name} ${index}`}
                 />
               );
