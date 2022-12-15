@@ -67,8 +67,8 @@ class Cart extends React.Component {
                     const setting = product.settings[index];
                     return (
                       <React.Fragment key={`cart att ${index}`}>
-                        <div className="cart__attribute">{att.name}:</div>
-                        <div className="cart__attribute--container">
+                        <div className="cart__attributeName">{att.name}:</div>
+                        <div className="cart__attributeContainer">
                           {att.items.map((item, index) => {
                             let style = { border: `1px solid ${item.value}` };
                             let selected = "";
@@ -79,7 +79,7 @@ class Cart extends React.Component {
                               <React.Fragment key={`att${index} item${index}`}>
                                 {type === "text" && <div className={`cart__text ${selected}`}>{item.value}</div>}
                                 {type === "swatch" && (
-                                  <div className={`cart__swatch--border ${selected}`}>
+                                  <div className={`cart__swatchBorder ${selected}`}>
                                     <div className="spacer">
                                       <div style={style}>
                                         <div className={`cart__swatch`} style={background} />
@@ -97,11 +97,11 @@ class Cart extends React.Component {
                 </div>
                 <div className="cart__itemEnd">
                   <div className="cart__quantity">
-                    <div className="cart__quantity--button" onClick={() => this.addToCart(product)}>
+                    <div className="cart__quantityButton" onClick={() => this.addToCart(product)}>
                       <span className="cart__plus">+</span>
                     </div>
-                    <div className="cart__quantity--text">{product.quantity}</div>
-                    <div className="cart__quantity--button" onClick={() => this.reduceFromCart(product)}>
+                    <div className="cart__quantityText">{product.quantity}</div>
+                    <div className="cart__quantityButton" onClick={() => this.reduceFromCart(product)}>
                       <span className="cart__minus">&ndash;</span>
                     </div>
                   </div>

@@ -37,8 +37,7 @@ class App extends React.Component {
 
   async fetchCurrencies() {
     const query = new Query("currencies", true);
-    query.addField("label");
-    query.addField("symbol");
+    query.addField("label").addField("symbol");
 
     return client
       .post(query)
@@ -71,7 +70,7 @@ class App extends React.Component {
     if (loading) return <></>;
     return (
       <BrowserRouter>
-        <div className="header">
+        <div>
           <div className="modal__backdrop" />
           <Navbar categories={categories} currencies={currencies} />
         </div>

@@ -159,11 +159,11 @@ class Product extends React.Component {
           <div className="product__gallery">
             {gallery.map((img, index) => {
               const borderClass = "";
-              // = bigImg === img ? "product__gallery--item-border" : "";
+              // = bigImg === img ? "product__galleryImageBorder" : "";
               return (
                 <div
                   key={`img${index}`}
-                  className={`product__gallery--item ${borderClass}`}
+                  className={`product__galleryImage ${borderClass}`}
                   style={this.backgroundImgStyle(img)}
                   onClick={() => this.changeBigImg(img)}
                   alt={`${brand} ${name} ${index}`}
@@ -174,35 +174,36 @@ class Product extends React.Component {
           <div>
             <img className="product__bigImg" src={bigImg} alt={name} />
           </div>
-          <div className="product__dsc">
-            <div className="product__dsc--brand">{brand}</div>
-            <div className="product__dsc--name">{name}</div>
-            <div className="product__dsc--attributes">
-              {attributes.map((a, index) => {
-                const type = a.type;
-                const container = `${type}__container`;
+          <div className="product__info">
+            <div className="product__brand">{brand}</div>
+            <div className="product__name">{name}</div>
+            <div className="product__attributes">
+              {attributes.map((att, index) => {
+                const type = att.type;
+                const container = `product__${type}Container`;
+                const setting = settings[index];
                 return (
-                  <React.Fragment key={`product att ${a.id}`}>
-                    <div className="product__dsc--attributes-type">{a.id}:</div>
+                  <React.Fragment key={`product attribute ${att.id}`}>
+                    <div className="product__attributeType">{att.id}:</div>
                     <div className={container}>
-                      {a.items.map((item) => {
+                      {att.items.map((item) => {
                         let style = { border: `1px solid ${item.value}` };
-                        const borderClass = item.value === settings[index].value ? "selected" : "";
-                        const swatchStyle = { backgroundColor: item.value };
-
+                        let selected = "";
+                        const background = { background: `${item.value}` };
                         if (item.displayValue === "White") style = { border: `1px solid #1d1f22` };
+                        if (setting.value === item.value) selected = "selected";
                         return (
                           <React.Fragment key={`${type} ${item.id}`}>
                             {type === "text" && (
-                              <div className={`text__item ${borderClass}`} onClick={() => this.changeSettings(a.id, item.value)}>
-                                <div className="text__item--text">{item.value}</div>
+                              <div className={`product__text ${selected}`} onClick={() => this.changeSettings(att.id, item.value)}>
+                                <div className="product__textValue">{item.value}</div>
                               </div>
                             )}
                             {type === "swatch" && (
-                              <div className={`swatch__item--border ${borderClass}`} onClick={() => this.changeSettings(a.id, item.value)}>
-                                <div className="swatch__item--spacer">
+                              <div className={`product__swatchBorder ${selected}`} onClick={() => this.changeSettings(att.id, item.value)}>
+                                <div className="spacer">
                                   <div style={style}>
-                                    <div className="swatch__item" style={swatchStyle} />
+                                    <div className={`product__swatch`} style={background} />
                                   </div>
                                 </div>
                               </div>
@@ -215,12 +216,12 @@ class Product extends React.Component {
                 );
               })}
             </div>
-            <div className="product__dsc--attributes-type">Price:</div>
-            <div className="product__dsc--price">{this.currentPrice()}</div>
-            <button className={`product__dsc--button ${oos}`} onClick={this.addToCart} disabled={!inStock}>
-              <div className="product__dsc--button-text">{inStock ? "add to cart" : "out of stock"}</div>
+            <div className="product__attributeType">Price:</div>
+            <div className="product__price">{this.currentPrice()}</div>
+            <button className={`product__button ${oos}`} onClick={this.addToCart} disabled={!inStock}>
+              <div className="product__buttonText">{inStock ? "add to cart" : "out of stock"}</div>
             </button>
-            <div className="product__dsc--dsc">
+            <div className="product__description">
               <div dangerouslySetInnerHTML={{ __html: description }}></div>
             </div>
           </div>
