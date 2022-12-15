@@ -80,42 +80,62 @@ class Minicart extends React.Component {
     }
   };
 
+  calcCartHeight = () => {
+    const { cart } = this.context[0];
+    const baseProductHeight = 80;
+    const textAttributeHeight = 60;
+    const swatchAttributeHeight = 56;
+    const productGap = 40;
+    let totalHeight = 0;
+    for (let i = 0; i < cart.length; i++) {
+      totalHeight += baseProductHeight;
+      for (let j = 0; j < cart[i].attributes.length; j++) {
+        if (cart[i].attributes[j].type === "text") totalHeight += textAttributeHeight;
+        if (cart[i].attributes[j].type === "swatch") totalHeight += swatchAttributeHeight;
+      }
+    }
+    totalHeight += productGap * (cart.length - 1);
+    return totalHeight;
+  };
+
   render() {
     const { cart } = this.context[0];
+    const scroll = this.calcCartHeight() > 550 ? "scroll" : "auto";
+
     return (
       <li id="nav__minicart">
-        <div className="nav__minicart--button" onClick={this.toggleMinicart}>
-          <img className="nav__minicart--icon" src={cartImg} alt="Minicart" />
+        <div className="minicart__navButton" onClick={this.toggleMinicart}>
+          <img className="minicart__navIcon" src={cartImg} alt="Minicart" />
           {cart.length > 0 && (
-            <span className="nav__minicart--dot">
-              <span className="nav__minicart--dot--text">{this.cartQuantity()}</span>
+            <span className="minicart__navDot">
+              <span className="minicart__navDotText">{this.cartQuantity()}</span>
             </span>
           )}
         </div>
         <div className="minicart__container">
           <div className="minicart__contents">
             <div className="minicart__title">
-              my bag, <span className="minicart__title--quantity">{this.cartQuantity()} items</span>
+              my bag, <span className="minicart__titleQuantity">{this.cartQuantity()} items</span>
             </div>
-            <div className={`minicart__item--container scroll`}>
-              {cart.length === 0 && <div className="minicart__item--empty">Your items will be displayed here</div>}
+            <div className={`minicart__itemContainer ${scroll}`}>
+              {cart.length === 0 && <div className="minicart__empty">Your items will be displayed here</div>}
               {cart.map((product, index, arr) => {
                 const gap = index + 1 !== arr.length ? "gap" : "";
                 const backgroundImg = product.gallery[0];
                 const img = { backgroundImage: `url(${backgroundImg})` };
                 return (
                   <div key={`minicart_${product.id}${index}`} className={`minicart__item ${gap}`}>
-                    <div className="minicart__item--details">
-                      <div className="minicart__item--brand-name">{product.brand}</div>
-                      <div className="minicart__item--brand-name">{product.name}</div>
-                      <div className="minicart__item--price">{this.currentPrice(product)}</div>
+                    <div className="minicart__itemDetails">
+                      <div className="minicart__itemBrandName">{product.brand}</div>
+                      <div className="minicart__itemBrandName">{product.name}</div>
+                      <div className="minicart__itemPrice">{this.currentPrice(product)}</div>
                       {product.attributes.map((att, index) => {
                         const type = att.type;
                         const setting = product.settings[index];
                         return (
                           <React.Fragment key={`${type} ${index}`}>
-                            <div className="minicart__item--att">{att.id}:</div>
-                            <div className="minicart__item-att-container ">
+                            <div className="minicart__attributeName">{att.id}:</div>
+                            <div className="minicart__attributeContainer">
                               {att.items.map((item) => {
                                 let style = { border: `1px solid ${item.value}` };
                                 let selected = "";
@@ -124,12 +144,12 @@ class Minicart extends React.Component {
                                 if (setting.value === item.value) selected = "selected";
                                 return (
                                   <React.Fragment key={`${type} ${index} ${item.value}`}>
-                                    {type === "text" && <div className={`minicart__item--att-text ${selected}`}>{item.value}</div>}
+                                    {type === "text" && <div className={`minicart__text ${selected}`}>{item.value}</div>}
                                     {type === "swatch" && (
-                                      <div className={`minicart__item--att-swatch-border ${selected}`}>
+                                      <div className={`minicart__swatchBorder ${selected}`}>
                                         <div className="spacer">
                                           <div style={style}>
-                                            <div className={`minicart__item--att-swatch`} style={background} />
+                                            <div className="minicart__swatch" style={background} />
                                           </div>
                                         </div>
                                       </div>
@@ -142,17 +162,17 @@ class Minicart extends React.Component {
                         );
                       })}
                     </div>
-                    <div className="minicart__item--end">
-                      <div className="minicart__item--quantity">
-                        <button className="minicart__item--quantity-button" onClick={() => this.addToCart(product)}>
+                    <div className="minicart__itemEnd">
+                      <div className="minicart__quantity">
+                        <button className="minicart__quantityButton" onClick={() => this.addToCart(product)}>
                           +
                         </button>
-                        <span className="minicart__item--quantity-text">{product.quantity}</span>
-                        <button className="minicart__item--quantity-button" onClick={() => this.reduceFromCart(product)}>
+                        <span className="minicart__quantityText">{product.quantity}</span>
+                        <button className="minicart__quantityButton" onClick={() => this.reduceFromCart(product)}>
                           &ndash;
                         </button>
                       </div>
-                      <div className="minicart__item--image" style={img} />
+                      <div className="minicart__image" style={img} />
                     </div>
                   </div>
                 );
@@ -160,9 +180,9 @@ class Minicart extends React.Component {
             </div>
             <div className="minicart__total">
               total
-              <span className="minicart__total--sum">{this.cartSum()}</span>
+              <span className="minicart__sum">{this.cartSum()}</span>
             </div>
-            <div className="minicart__button--container">
+            <div className="minicart__buttonContainer">
               <Link className="minicart__link" to={"/cart"} onClick={this.closeMinicart}>
                 <button className="minicart__button minicart__button--bag">view bag</button>
               </Link>

@@ -2,36 +2,17 @@ import React from "react";
 import logoImg from "../Images/Brand_icon.png";
 import { NavLink } from "react-router-dom";
 import Minicart from "./Minicart";
-import Helper from "../Helper";
 import { AppContext } from "../Context";
 
 class Navbar extends React.Component {
   static contextType = AppContext;
-  constructor(props) {
-    super(props);
-    this.state = {
-      buttonStyle: undefined,
-      dropdownStyle: undefined,
-      loading: true,
-    };
-  }
 
   componentDidMount() {
-    const dropdownStyle = this.getStyle(".nav__dropdown");
-    const buttonStyle = this.getStyle(".nav__button");
-
-    this.setState({ buttonStyle, dropdownStyle, loading: false });
-
     document.body.addEventListener("mousedown", this.exitDropdown);
   }
 
-  getStyle(classname) {
-    const desiredHref = "http://localhost:3000/styles/Header.css";
-    return Helper.getStyle(classname, desiredHref);
-  }
-
   exitDropdown = (event) => {
-    const button = document.getElementById("nav__button");
+    const button = document.querySelector(".nav__button");
 
     if (!button.contains(event.target)) {
       this.closeDropdown();
@@ -39,26 +20,28 @@ class Navbar extends React.Component {
   };
 
   toggleDropdown = () => {
-    const dropdownStyle = this.state.dropdownStyle;
+    const dropdownStyle = document.querySelector(".nav__dropdown").style;
 
-    dropdownStyle.display === "none" ? this.openDropdown() : this.closeDropdown();
+    dropdownStyle.display === "" ? this.openDropdown() : this.closeDropdown();
   };
 
   closeDropdown = () => {
-    const dropdownStyle = this.state.dropdownStyle;
-    const arrow = document.querySelector(".dropdown__arrow");
-    arrow.style.transform = "rotate(45deg)";
+    const dropdownStyle = document.querySelector(".nav__dropdown").style;
+    const arrowStyle = document.querySelector(".nav__dropdownArrow").style;
 
-    arrow.style["margin-bottom"] = "4px";
-    dropdownStyle.display = "none";
+    arrowStyle.transform = "rotate(45deg)";
+    arrowStyle["margin-bottom"] = "4px";
+
+    dropdownStyle.display = "";
   };
 
   openDropdown = () => {
-    const dropdownStyle = this.state.dropdownStyle;
-    const arrow = document.querySelector(".dropdown__arrow");
-    arrow.style.transform = "rotate(-135deg)";
+    const dropdownStyle = document.querySelector(".nav__dropdown").style;
+    const arrowStyle = document.querySelector(".nav__dropdownArrow").style;
 
-    arrow.style["margin-bottom"] = "-2px";
+    arrowStyle.transform = "rotate(-135deg)";
+    arrowStyle["margin-bottom"] = "-2px";
+
     dropdownStyle.display = "inline-block";
   };
 
@@ -72,38 +55,37 @@ class Navbar extends React.Component {
   };
 
   render() {
-    const { loading } = this.state;
     const { currency, currentCategory } = this.context[0];
-    if (loading) return <></>;
+
     return (
       <nav className="nav">
         <ul className="nav__list">
-          <ul className="nav__section left">
+          <ul className="nav__section nav__section--left">
             {this.props.categories.map((category, index) => {
-              const border = category.name === currentCategory ? "nav__link--border" : "";
+              const selected = category.name === currentCategory ? "selected" : "";
               return (
                 <li key={`category${index}`}>
-                  <NavLink className={`nav__link ${border}`} to={`/categories/${category.name}`} id={category.name}>
+                  <NavLink className={`nav__link ${selected}`} to={`/categories/${category.name}`}>
                     {category.name}
                   </NavLink>
                 </li>
               );
             })}
           </ul>
-          <li className="logo">
+          <li>
             <img className="nav__logo" src={logoImg} alt="Brand logo" />
           </li>
-          <ul className="nav__section right">
+          <ul className="nav__section nav__section--right">
             <ul className="nav__actions">
               <li className="nav__currency">
-                <span className="nav__currency--display">{currency}</span>
-                <button className="nav__button" onMouseDown={this.toggleDropdown} id="nav__button">
-                  <span className="dropdown__arrow"></span>
+                <span className="nav__currencyText">{currency}</span>
+                <button className="nav__button" onMouseDown={this.toggleDropdown}>
+                  <span className="nav__dropdownArrow"></span>
                 </button>
-                <div className="nav__dropdown" id="nav__dropdown">
+                <div className="nav__dropdown">
                   {this.props.currencies.map((currency) => {
                     return (
-                      <div key={currency.symbol} className="nav__dropdown--item" onMouseDown={() => this.selectCurrency(currency.symbol)}>
+                      <div key={currency.symbol} className="nav__dropdownItem" onMouseDown={() => this.selectCurrency(currency.symbol)}>
                         {currency.symbol} {currency.label}
                       </div>
                     );
