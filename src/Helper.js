@@ -11,10 +11,11 @@ class Helper {
     return undefined;
   }
 
+  static removeReference = (object) => {
+    return JSON.parse(JSON.stringify(object));
+  };
+
   static addToCart(context, product, settingsRef) {
-    const removeReference = (object) => {
-      return JSON.parse(JSON.stringify(object));
-    };
     if (typeof settingsRef === "undefined") {
       const settings = [];
       product.attributes.forEach((att) => {
@@ -26,10 +27,10 @@ class Helper {
     }
 
     const [state, setState] = context;
-    const { cart } = removeReference(state);
 
-    const { id, brand, name, prices, attributes, gallery } = removeReference(product);
-    const settings = removeReference(settingsRef);
+    const cart = this.removeReference(state.cart);
+    const { id, brand, name, prices, attributes, gallery } = this.removeReference(product);
+    const settings = this.removeReference(settingsRef);
 
     for (let i = 0; i < cart.length; i++) {
       if (id === cart[i].id) {
@@ -120,6 +121,9 @@ class Helper {
     if (currentCategory === category) return;
     setState({ currentCategory: category });
   }
+
+  static loadCurrencyFromMemory(context) {}
+  static loadCartFromMemory(context) {}
 }
 
 export default Helper;
