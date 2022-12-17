@@ -38,6 +38,15 @@ class Product extends React.Component {
       this.fetchProductData();
       console.log("Updated: Product");
     }
+    if (prevProps.match.params.settings !== this.props.match.params.settings) {
+      const urlSettings = this.getSettingsFromParameters();
+      const url = JSON.stringify(urlSettings);
+      const state = JSON.stringify(this.state.settings);
+      if (url !== state) {
+        const newSettings = this.validateSettings(urlSettings, this.state.attributes);
+        this.setState({ settings: newSettings });
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -69,12 +78,10 @@ class Product extends React.Component {
       .post(query, { signal: this.controller.signal })
       .then((res) => res.product)
       .then((p) => {
-        const settings = [];
-        p.attributes.forEach((att) => {
-          const id = att.id;
-          const value = att.items[0].value;
-          settings.push({ id, value });
-        });
+        const urlSettings = this.getSettingsFromParameters();
+        const settings = this.validateSettings(urlSettings, p.attributes);
+        this.changeURL(settings, p.id);
+
         this.updateCurrentCategory(p.category);
         this.setState({
           id: p.id,
@@ -101,16 +108,81 @@ class Product extends React.Component {
       });
   }
 
+  getSettingsFromParameters = () => {
+    const params = this.props.match.params.settings;
+    if (typeof params === "undefined") {
+      return [];
+    }
+    let settings = params.replace(/_+/g, " ");
+    settings = settings.split("&");
+    const urlSettings = [];
+    for (let i = 0; i < settings.length; i++) {
+      let id = settings[i].split("=")[0];
+      let value = settings[i].split("=")[1];
+      urlSettings.push({ id, value });
+    }
+    return urlSettings;
+  };
+
+  validateSettings = (urlSettings, attributes) => {
+    const validatedSettings = [];
+    for (let i = 0; i < attributes.length; i++) {
+      let found = false;
+      for (let j = 0; j < urlSettings.length && !found; j++) {
+        if (attributes[i].id === urlSettings[j].id) {
+          let exit = false;
+          for (let k = 0; k < attributes[i].items.length && !exit; k++) {
+            if (attributes[i].items[k].value === urlSettings[j].value) {
+              validatedSettings.push({ id: urlSettings[j].id, value: urlSettings[j].value });
+              exit = true;
+            }
+          }
+          if (!exit) {
+            const id = attributes[i].id;
+            const value = attributes[i].items[0].value;
+            validatedSettings.push({ id, value });
+          }
+          urlSettings.splice(j, 1);
+          found = true;
+        }
+      }
+      if (!found) {
+        const id = attributes[i].id;
+        const value = attributes[i].items[0].value;
+        validatedSettings.push({ id, value });
+      }
+    }
+    return validatedSettings;
+  };
+
+  urlizeSettings = (settings, productId) => {
+    let url = `/products/${productId}/`;
+    let spacer = "";
+    for (let i = 0; i < settings.length; i++) {
+      if (i !== 0) spacer = "&";
+      const { id, value } = settings[i];
+      url += `${spacer}${id}=${value}`;
+    }
+    url = url.replace(/\s+/g, "_");
+    return url;
+  };
+
+  changeURL = (settings, productId) => {
+    const url = this.urlizeSettings(settings, productId);
+    this.props.history.push(url);
+  };
+
   changeBigImg = (img) => {
     this.setState({ bigImg: img });
   };
 
   changeSettings = (id, value) => {
-    const settings = this.state.settings;
+    const { settings } = this.state;
     for (let i = 0; i < settings.length; i++) {
       if (settings[i].id === id) {
         settings[i].value = value;
         this.setState({ settings: settings });
+        this.changeURL(settings, this.state.id);
         return;
       }
     }

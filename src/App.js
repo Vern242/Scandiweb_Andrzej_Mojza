@@ -76,7 +76,7 @@ class App extends React.Component {
         </div>
         <Switch>
           <Route component={Category} path="/categories/:name" />;
-          <Route component={Product} path="/products/:id" />;
+          <Route component={Product} path="/products/:id/:settings?" />
           <Route component={Cart} path="/cart" />;
           <Route component={() => <Home category={categories[0]} />} path="*" />;
         </Switch>
