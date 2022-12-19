@@ -39,11 +39,13 @@ class Product extends React.Component {
       console.log("Updated: Product");
     }
     if (prevProps.match.params.settings !== this.props.match.params.settings) {
-      const urlSettings = this.getSettingsFromParameters();
+      const { attributes, settings } = this.state;
+      const urlSettings = this.getSettingsFromParameters(attributes);
       const url = JSON.stringify(urlSettings);
-      const state = JSON.stringify(this.state.settings);
+      const state = JSON.stringify(settings);
+
       if (url !== state) {
-        const newSettings = this.validateSettings(urlSettings, this.state.attributes);
+        const newSettings = this.validateSettings(urlSettings, attributes);
         this.setState({ settings: newSettings });
       }
     }
@@ -78,7 +80,7 @@ class Product extends React.Component {
       .post(query, { signal: this.controller.signal })
       .then((res) => res.product)
       .then((p) => {
-        const urlSettings = this.getSettingsFromParameters();
+        const urlSettings = this.getSettingsFromParameters(p.attributes);
         const settings = this.validateSettings(urlSettings, p.attributes);
         this.changeURL(settings, p.id);
 
@@ -108,7 +110,7 @@ class Product extends React.Component {
       });
   }
 
-  getSettingsFromParameters = () => {
+  getSettingsFromParameters = (attributes) => {
     const params = this.props.match.params.settings;
     if (typeof params === "undefined") {
       return [];
@@ -121,7 +123,22 @@ class Product extends React.Component {
       let value = settings[i].split("=")[1];
       urlSettings.push({ id, value });
     }
+    this.addHashToSwatch(urlSettings, attributes);
     return urlSettings;
+  };
+
+  addHashToSwatch = (urlSettings, attributes) => {
+    for (let i = 0; i < attributes.length; i++) {
+      const { type, id: a_id } = attributes[i];
+      if (type === "swatch") {
+        for (let j = 0; j < urlSettings.length; j++) {
+          const { id: s_id } = urlSettings[j];
+          if (a_id === s_id) {
+            urlSettings[j].value = "#" + urlSettings[j].value;
+          }
+        }
+      }
+    }
   };
 
   validateSettings = (urlSettings, attributes) => {
@@ -130,10 +147,11 @@ class Product extends React.Component {
       let found = false;
       for (let j = 0; j < urlSettings.length && !found; j++) {
         if (attributes[i].id === urlSettings[j].id) {
+          const { value } = urlSettings[j];
           let exit = false;
           for (let k = 0; k < attributes[i].items.length && !exit; k++) {
-            if (attributes[i].items[k].value === urlSettings[j].value) {
-              validatedSettings.push({ id: urlSettings[j].id, value: urlSettings[j].value });
+            if (attributes[i].items[k].value === value) {
+              validatedSettings.push({ id: urlSettings[j].id, value });
               exit = true;
             }
           }
@@ -164,6 +182,7 @@ class Product extends React.Component {
       url += `${spacer}${id}=${value}`;
     }
     url = url.replace(/\s+/g, "_");
+    url = url.replace(/#+/g, "");
     return url;
   };
 
