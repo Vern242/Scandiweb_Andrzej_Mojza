@@ -75,6 +75,9 @@ class App extends React.Component {
           <div className="modal__backdrop" />
           <Navbar categories={categories} currencies={currencies} />
         </div>
+        <div className="message__container">
+          <div className="message__bar">Added to cart!</div>
+        </div>
         <Switch>
           <Route component={Category} path="/categories/:name" />;
           <Route component={Product} path="/products/:id/:settings?" />

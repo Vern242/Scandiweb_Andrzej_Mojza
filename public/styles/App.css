@@ -8,6 +8,7 @@ body {
   min-height: 100%;
   margin: 0;
   padding: 0;
+  position: relative;
 }
 
 ul {
@@ -18,4 +19,35 @@ ul {
 
 li {
   display: inline-flex;
+}
+
+.message__container {
+  height: 100%;
+  position: absolute;
+  pointer-events: none;
+}
+
+.message__bar {
+  padding: 10px 0px 10px 0px;
+  width: 100vw;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.2s linear;
+
+  font-family: "Raleway";
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 17px;
+  letter-spacing: 0em;
+  text-align: center;
+  text-transform: uppercase;
+
+  background-color: #5ece7b;
+  color: #ffffff;
+}
+.message__bar.show {
+  opacity: 1;
+  transition: opacity 0.2s linear;
 }

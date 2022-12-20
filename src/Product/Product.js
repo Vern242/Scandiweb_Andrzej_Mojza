@@ -225,6 +225,7 @@ class Product extends React.Component {
     const { id, brand, name, prices, attributes, gallery, settings } = this.state;
     const product = { id, brand, name, prices, attributes, gallery };
 
+    Helper.showCartMessage();
     Helper.addToCart(this.context, product, settings);
   };
 

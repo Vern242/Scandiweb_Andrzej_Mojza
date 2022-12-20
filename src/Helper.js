@@ -80,6 +80,14 @@ class Helper {
     }
   }
 
+  static showCartMessage() {
+    const message = document.querySelector(".message__bar");
+    message.classList.toggle("show");
+    setTimeout(() => {
+      message.classList.toggle("show");
+    }, 1000);
+  }
+
   static currentPrice(prices, currency) {
     let found = false;
     for (let i = 0; i < prices.length && !found; i++) {
