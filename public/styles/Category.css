@@ -22,7 +22,7 @@
   flex-direction: row;
   flex-wrap: wrap;
   gap: 0px 20px;
-  justify-content: flex-start;
+  justify-content: space-evenly;
 }
 
 .product__card {
