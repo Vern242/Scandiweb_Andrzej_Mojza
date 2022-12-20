@@ -7,6 +7,7 @@ import Home from "./Home";
 import { client, Query } from "@tilework/opus";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { AppContext } from "./Context";
+import Helper from "./Helper";
 
 client.setEndpoint("http://localhost:4000/graphql");
 
@@ -27,7 +28,7 @@ class App extends React.Component {
       .then(([cur, cat]) => {
         const [, setContext] = this.context;
 
-        setContext({ currency: cur[0].symbol });
+        Helper.loadCurrencyFromStorage(setContext, cur);
         this.setState({ currencies: cur, categories: cat, loading: false, error: undefined });
       })
       .catch((err) => {

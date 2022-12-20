@@ -3,13 +3,46 @@ import cartImg from "../Images/Empty_cart.png";
 import { Link } from "react-router-dom";
 import Helper from "../Helper";
 import { AppContext } from "../Context";
+import { client, Field, Query } from "@tilework/opus";
 
 class Minicart extends React.Component {
   static contextType = AppContext;
 
   componentDidMount() {
     document.body.addEventListener("mousedown", this.exitMinicart);
+    this.loadCartFromStorage();
   }
+
+  loadCartFromStorage = async () => {
+    const storageCart = Helper.loadCartFromStorage(this.context[1]);
+    const queries = [];
+    for (let i = 0; i < storageCart.length; i++) {
+      const query = new Query("product", true);
+      query
+        .addArgument("id", "String!", storageCart[i]?.id)
+        .addField("id")
+        .addField("brand")
+        .addField("name")
+        .addField("inStock")
+        .addField("gallery")
+        .addField("description")
+        .addField("category")
+
+        .addField(
+          new Field("attributes")
+            .addField("id")
+            .addField("name")
+            .addField("type")
+            .addField(new Field("items").addField("displayValue").addField("value").addField("id"))
+        )
+        .addField(new Field("prices").addField("amount").addField(new Field("currency").addField("label").addField("symbol")));
+      queries.push(client.post(query));
+    }
+    //update to singular server query with multiple IDs as argument when available
+    const fetchedProducts = await Promise.all(queries);
+    const verifiedCart = Helper.verifyCart(storageCart, fetchedProducts);
+    Helper.addToCartFromStorage(this.context, verifiedCart);
+  };
 
   cartQuantity = () => {
     return Helper.cartQuantity(this.context);
