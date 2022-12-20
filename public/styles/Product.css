@@ -38,13 +38,13 @@
 } */
 
 .product__bigImg {
-  margin-left: 100px;
-  width: 710px;
+  margin-left: 6vw;
+  width: 610px;
   height: auto;
 }
 
 .product__info {
-  margin-left: 200px;
+  margin-left: 12vw;
 }
 
 .product__brand {
