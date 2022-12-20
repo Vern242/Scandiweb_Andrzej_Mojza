@@ -21,9 +21,30 @@ class CategoryProduct extends React.Component {
     return Helper.currentPrice(prices, currency);
   };
 
+  createUrl = (product) => {
+    let url = `/products/${product.id}/`;
+    let spacer = "";
+
+    const settings = [];
+    product.attributes.forEach((att) => {
+      const id = att.id;
+      const value = att.items[0].value;
+      settings.push({ id, value });
+    });
+
+    for (let i = 0; i < settings.length; i++) {
+      if (i !== 0) spacer = "&";
+      const { id, value } = settings[i];
+      url += `${spacer}${id}=${value}`;
+    }
+    url = url.replace(/\s+/g, "_");
+    url = url.replace(/#+/g, "");
+    return url;
+  };
+
   render() {
     const { product } = this.props;
-    const link = `/products/${product.id}`;
+    const link = this.createUrl(product);
     const { name, gallery, brand, inStock } = product;
     const imageStyle = { backgroundImage: `url(${gallery[0]})` };
     const isOutOfStock = inStock ? "" : "opacity";

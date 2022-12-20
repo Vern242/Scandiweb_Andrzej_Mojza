@@ -188,7 +188,11 @@ class Product extends React.Component {
 
   changeURL = (settings, productId) => {
     const url = this.urlizeSettings(settings, productId);
-    this.props.history.push(url);
+    const { location } = this.props;
+
+    if (location.pathname !== url) {
+      this.props.history.push(url);
+    }
   };
 
   changeBigImg = (img) => {
