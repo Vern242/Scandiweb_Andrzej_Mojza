@@ -45,7 +45,7 @@ class Product extends React.Component {
       const state = JSON.stringify(settings);
 
       if (url !== state) {
-        const newSettings = this.validateSettings(urlSettings, attributes);
+        const newSettings = this.verifySettings(urlSettings, attributes);
         this.setState({ settings: newSettings });
       }
     }
@@ -81,7 +81,7 @@ class Product extends React.Component {
       .then((res) => res.product)
       .then((p) => {
         const urlSettings = this.getSettingsFromParameters(p.attributes);
-        const settings = this.validateSettings(urlSettings, p.attributes);
+        const settings = this.verifySettings(urlSettings, p.attributes);
         this.changeURL(settings, p.id);
 
         this.updateCurrentCategory(p.category);
@@ -141,8 +141,8 @@ class Product extends React.Component {
     }
   };
 
-  validateSettings = (urlSettings, attributes) => {
-    const validatedSettings = [];
+  verifySettings = (urlSettings, attributes) => {
+    const verifiedSettings = [];
     for (let i = 0; i < attributes.length; i++) {
       let found = false;
       for (let j = 0; j < urlSettings.length && !found; j++) {
@@ -151,14 +151,14 @@ class Product extends React.Component {
           let exit = false;
           for (let k = 0; k < attributes[i].items.length && !exit; k++) {
             if (attributes[i].items[k].value === value) {
-              validatedSettings.push({ id: urlSettings[j].id, value });
+              verifiedSettings.push({ id: urlSettings[j].id, value });
               exit = true;
             }
           }
           if (!exit) {
             const id = attributes[i].id;
             const value = attributes[i].items[0].value;
-            validatedSettings.push({ id, value });
+            verifiedSettings.push({ id, value });
           }
           urlSettings.splice(j, 1);
           found = true;
@@ -167,10 +167,10 @@ class Product extends React.Component {
       if (!found) {
         const id = attributes[i].id;
         const value = attributes[i].items[0].value;
-        validatedSettings.push({ id, value });
+        verifiedSettings.push({ id, value });
       }
     }
-    return validatedSettings;
+    return verifiedSettings;
   };
 
   urlizeSettings = (settings, productId) => {
