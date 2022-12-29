@@ -267,7 +267,7 @@ class Product extends React.Component {
               );
             })}
           </div>
-          <div>
+          <div className="product__imgContainer">
             <img className="product__bigImg" src={bigImg} alt={name} />
           </div>
           <div className="product__info">

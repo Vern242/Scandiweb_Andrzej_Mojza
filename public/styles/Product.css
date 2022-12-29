@@ -37,10 +37,16 @@
   border: 1px solid #5ece7b;
 } */
 
-.product__bigImg {
+.product__imgContainer {
   margin-left: 6vw;
   width: 610px;
-  height: auto;
+  height: 610px;
+  text-align: center;
+}
+
+.product__bigImg {
+  max-height: 610px;
+  max-width: 610px;
 }
 
 .product__info {
