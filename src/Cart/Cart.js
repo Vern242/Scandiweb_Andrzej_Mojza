@@ -27,7 +27,7 @@ class Cart extends React.Component {
 
   currentPrice = (prices) => {
     const { currency } = this.context[0];
-    return Helper.currentPrice(prices, currency);
+    return Helper.currentPriceWithoutSpaces(prices, currency);
   };
 
   cartTax = () => {

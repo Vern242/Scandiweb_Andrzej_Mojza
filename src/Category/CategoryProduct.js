@@ -19,7 +19,7 @@ class CategoryProduct extends React.Component {
     const { prices } = this.props.product;
     const { currency } = this.context[0];
 
-    return Helper.currentPrice(prices, currency);
+    return Helper.currentPriceWithoutSpaces(prices, currency);
   };
 
   createUrl = (product) => {

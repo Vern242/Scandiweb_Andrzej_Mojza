@@ -98,6 +98,11 @@ class Helper {
     }
   }
 
+  static currentPriceWithoutSpaces(prices, currency) {
+    const price = this.currentPrice(prices, currency);
+    return price.replace(/\s+/g, "");
+  }
+
   static cartQuantity(context) {
     const { cart } = context[0];
     let quantity = 0;

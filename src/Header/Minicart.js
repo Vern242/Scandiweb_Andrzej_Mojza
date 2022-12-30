@@ -57,7 +57,7 @@ class Minicart extends React.Component {
   currentPrice = (product) => {
     const { prices } = product;
     const { currency } = this.context[0];
-    return Helper.currentPrice(prices, currency);
+    return Helper.currentPriceWithoutSpaces(prices, currency);
   };
 
   addToCart = (product) => {

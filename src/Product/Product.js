@@ -218,7 +218,7 @@ class Product extends React.Component {
   currentPrice = () => {
     const { prices } = this.state;
     const { currency } = this.context[0];
-    return Helper.currentPrice(prices, currency);
+    return Helper.currentPriceWithoutSpaces(prices, currency);
   };
 
   addToCart = () => {
@@ -257,18 +257,21 @@ class Product extends React.Component {
               const borderClass = "";
               // = bigImg === img ? "product__galleryImageBorder" : "";
               return (
-                <div
-                  key={`img${index}`}
-                  className={`product__galleryImage ${borderClass}`}
-                  style={this.backgroundImgStyle(img)}
-                  onClick={() => this.changeBigImg(img)}
-                  alt={`${brand} ${name} ${index}`}
-                />
+                <div className="product__galleryImgContainer" key={`img${index}`}>
+                  <div
+                    className={`product__galleryImage ${borderClass}`}
+                    style={this.backgroundImgStyle(img)}
+                    onClick={() => this.changeBigImg(img)}
+                    alt={`${brand} ${name} ${index}`}
+                  />
+                </div>
               );
             })}
           </div>
-          <div className="product__imgContainer">
-            <img className="product__bigImg" src={bigImg} alt={name} />
+          <div>
+            <div className="product__imgContainer">
+              <img className="product__bigImg" src={bigImg} alt={name} />
+            </div>
           </div>
           <div className="product__info">
             <div className="product__brand">{brand}</div>
