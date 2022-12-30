@@ -3,8 +3,8 @@
   height: 80px;
   background-color: white;
   z-index: 1;
-  padding-left: 7vw;
-  padding-right: 7vw;
+  padding-left: 5vw;
+  padding-right: 5vw;
 }
 .nav__list {
   height: 100%;
@@ -87,8 +87,8 @@
   cursor: pointer;
 }
 .nav__dropdown {
-  width: 110px;
-  right: 6.3vw;
+  width: 114px;
+  right: 3.9vw;
   display: none;
   position: absolute;
   margin-top: 36px;
