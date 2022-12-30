@@ -1,6 +1,6 @@
 .product {
-  padding-left: 7vw;
-  padding-right: 7vw;
+  padding-left: 5vw;
+  padding-right: 5vw;
 }
 
 .product__container {
@@ -14,8 +14,14 @@
   display: flex;
   flex-wrap: wrap;
   gap: 40px;
-  width: 80px;
+  width: 100px;
   height: 100%;
+}
+
+.product__galleryImgContainer {
+  width: 100px;
+  height: 100px;
+  text-align: center;
 }
 
 .product__galleryImage {
@@ -24,7 +30,7 @@
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
-  border: 1px solid transparent;
+  /* border: 1px solid transparent; */
 }
 
 .product__galleryImage:hover {
@@ -42,6 +48,8 @@
   width: 610px;
   height: 610px;
   text-align: center;
+  position: sticky;
+  top: 40px;
 }
 
 .product__bigImg {
