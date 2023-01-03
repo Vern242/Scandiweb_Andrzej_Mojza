@@ -82,6 +82,8 @@ class Helper {
 
   static showCartMessage() {
     const message = document.querySelector(".message__bar");
+    if (message.classList.contains("show")) return;
+
     message.classList.toggle("show");
     setTimeout(() => {
       message.classList.toggle("show");
