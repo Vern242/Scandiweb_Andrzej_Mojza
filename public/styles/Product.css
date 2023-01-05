@@ -44,10 +44,12 @@
 } */
 
 .product__imgContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-left: 6vw;
   width: 610px;
   height: 610px;
-  text-align: center;
   position: sticky;
   top: 40px;
 }
