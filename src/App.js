@@ -7,7 +7,7 @@ import Home from "./Home";
 import { client, Query } from "@tilework/opus";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { AppContext } from "./Context";
-import Helper from "./Helper";
+import CurrencyFetcher from "./utils/CurrencyFetcher";
 
 client.setEndpoint("http://localhost:4000/graphql");
 
@@ -18,50 +18,35 @@ class App extends React.Component {
     this.state = {
       loading: true,
       categories: [],
-      currencies: [],
       error: undefined,
     };
   }
 
   componentDidMount() {
-    Promise.all([this.fetchCurrencies(), this.fetchCategories()])
-      .then(([cur, cat]) => {
-        const [, setContext] = this.context;
-
-        Helper.loadCurrencyFromStorage(setContext, cur);
-        this.setState({ currencies: cur, categories: cat, loading: false, error: undefined });
-      })
-      .catch((err) => {
-        this.setState({ error: err.message });
-      });
-  }
-
-  async fetchCurrencies() {
-    const query = new Query("currencies", true);
-    query.addField("label").addField("symbol");
-
-    return client
-      .post(query)
-      .then((res) => res.currencies)
-      .then((cur) => {
-        return cur;
-      });
+    this.fetchCategories();
   }
 
   async fetchCategories() {
     const query = new Query("categories", true);
     query.addField("name");
 
-    return client
+    const categories = await client
       .post(query)
       .then((res) => res.categories)
       .then((cat) => {
         return cat;
+      })
+      .catch((err) => {
+        this.setState({ error: err.message });
       });
+
+    if (!categories) return;
+
+    this.setState({ categories: categories, loading: false, error: undefined });
   }
 
   render() {
-    const { loading, error, categories, currencies } = this.state;
+    const { loading, error, categories } = this.state;
     if (error)
       return (
         <div className="category">
@@ -73,16 +58,25 @@ class App extends React.Component {
       <BrowserRouter>
         <div>
           <div className="modal__backdrop" />
-          <Navbar categories={categories} currencies={currencies} />
+          <Navbar categories={categories} />
         </div>
         <div className="message__container">
           <div className="message__bar">Added to cart!</div>
         </div>
         <Switch>
-          <Route component={Category} path="/categories/:name" />;
-          <Route component={Product} path="/products/:id/:settings?" />
-          <Route component={Cart} path="/cart" />;
-          <Route component={() => <Home category={categories[0]} />} path="*" />;
+          <Route path="/categories/:name">
+            <Category />
+            <CurrencyFetcher />
+          </Route>
+          <Route path="/products/:id/:settings?">
+            <Product />
+            <CurrencyFetcher />
+          </Route>
+          <Route path="/cart">
+            <Cart />
+            <CurrencyFetcher />
+          </Route>
+          <Route path="*" component={() => <Home category={categories[0]} />} />
         </Switch>
       </BrowserRouter>
     );

@@ -1,5 +1,5 @@
 import React from "react";
-import Helper from "./Helper";
+import Helper from "./utils/Helper";
 
 export const AppContext = React.createContext();
 
@@ -9,6 +9,7 @@ class Context extends React.Component {
     this.state = {
       currency: "",
       cart: [],
+      currencies: [],
       currentCategory: "",
     };
   }
