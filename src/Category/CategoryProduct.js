@@ -2,7 +2,7 @@ import React from "react";
 import cartImg from "../Images/Card_cart.png";
 import { Link } from "react-router-dom";
 import { AppContext } from "../Context";
-import Helper from "../Helper";
+import Helper from "../utils/Helper";
 
 class CategoryProduct extends React.Component {
   static contextType = AppContext;
@@ -47,6 +47,7 @@ class CategoryProduct extends React.Component {
     const { product } = this.props;
     const link = this.createUrl(product);
     const { name, gallery, brand, inStock } = product;
+
     const imageStyle = { backgroundImage: `url(${gallery[0]})` };
     const isOutOfStock = inStock ? "" : "opacity";
 
