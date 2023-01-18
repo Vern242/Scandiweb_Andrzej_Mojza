@@ -1,7 +1,9 @@
 import React from "react";
 import { client, Field, Query } from "@tilework/opus";
-import Helper from "../Helper";
+import Helper from "../utils/Helper";
 import { AppContext } from "../Context";
+import { withRouter } from "react-router-dom";
+import { Markup } from "interweave";
 
 class Product extends React.Component {
   static contextType = AppContext;
@@ -27,6 +29,7 @@ class Product extends React.Component {
 
   componentDidMount() {
     console.log("Mounted: Product");
+    window.scrollTo(0, 0);
     this.fetchProductData();
   }
 
@@ -44,10 +47,10 @@ class Product extends React.Component {
       const url = JSON.stringify(urlSettings);
       const state = JSON.stringify(settings);
 
-      if (url !== state) {
-        const newSettings = this.verifySettings(urlSettings, attributes);
-        this.setState({ settings: newSettings });
-      }
+      if (url === state) return;
+
+      const newSettings = this.verifySettings(urlSettings, attributes);
+      this.setState({ settings: newSettings });
     }
   }
 
@@ -76,51 +79,53 @@ class Product extends React.Component {
       )
       .addField(new Field("prices").addField("amount").addField(new Field("currency").addField("label").addField("symbol")));
 
-    client
+    const p = await client
       .post(query, { signal: this.controller.signal })
       .then((res) => res.product)
       .then((p) => {
-        const urlSettings = this.getSettingsFromParameters(p.attributes);
-        const settings = this.verifySettings(urlSettings, p.attributes);
-        this.changeURL(settings, p.id);
-
-        this.updateCurrentCategory(p.category);
-        this.setState({
-          id: p.id,
-          name: p.name,
-          inStock: p.inStock,
-          gallery: p.gallery,
-          description: p.description,
-          category: p.category,
-          brand: p.brand,
-          attributes: p.attributes,
-          error: "",
-          loading: false,
-          bigImg: p.gallery[0],
-          prices: p.prices,
-          settings: settings,
-        });
+        return p;
       })
       .catch((err) => {
-        if (err?.name === "AbortError") {
-          return undefined;
-        }
+        if (err?.name === "AbortError") return undefined;
+
         this.setState({ error: err.message, loading: false });
         console.log(err.message);
       });
+    if (!p) return;
+
+    const urlSettings = this.getSettingsFromParameters(p.attributes);
+    const settings = this.verifySettings(urlSettings, p.attributes);
+    this.changeURL(settings, p.id);
+
+    this.updateCurrentCategory(p.category);
+    this.setState({
+      id: p.id,
+      name: p.name,
+      inStock: p.inStock,
+      gallery: p.gallery,
+      description: p.description,
+      category: p.category,
+      brand: p.brand,
+      attributes: p.attributes,
+      error: "",
+      loading: false,
+      bigImg: p.gallery[0],
+      prices: p.prices,
+      settings: settings,
+    });
   }
 
   getSettingsFromParameters = (attributes) => {
     const params = this.props.match.params.settings;
-    if (typeof params === "undefined") {
-      return [];
-    }
+    if (typeof params === "undefined") return [];
+
     let settings = params.replace(/_+/g, " ");
     settings = settings.split("&");
     const urlSettings = [];
-    for (let i = 0; i < settings.length; i++) {
-      let id = settings[i].split("=")[0];
-      let value = settings[i].split("=")[1];
+
+    for (const setting of settings) {
+      const id = setting.split("=")[0];
+      const value = setting.split("=")[1];
       urlSettings.push({ id, value });
     }
     this.addHashToSwatch(urlSettings, attributes);
@@ -128,47 +133,44 @@ class Product extends React.Component {
   };
 
   addHashToSwatch = (urlSettings, attributes) => {
-    for (let i = 0; i < attributes.length; i++) {
-      const { type, id: a_id } = attributes[i];
-      if (type === "swatch") {
-        for (let j = 0; j < urlSettings.length; j++) {
-          const { id: s_id } = urlSettings[j];
-          if (a_id === s_id) {
-            urlSettings[j].value = "#" + urlSettings[j].value;
-          }
-        }
+    for (const attribute of attributes) {
+      const { type, id: a_id } = attribute;
+      if (type !== "swatch") continue;
+
+      for (const urlSetting of urlSettings) {
+        const { id: s_id } = urlSetting;
+        if (a_id !== s_id) continue;
+
+        urlSetting.value = "#" + urlSetting.value;
       }
     }
   };
 
   verifySettings = (urlSettings, attributes) => {
     const verifiedSettings = [];
-    for (let i = 0; i < attributes.length; i++) {
+
+    for (const attribute of attributes) {
       let found = false;
-      for (let j = 0; j < urlSettings.length && !found; j++) {
-        if (attributes[i].id === urlSettings[j].id) {
-          const { value } = urlSettings[j];
-          let exit = false;
-          for (let k = 0; k < attributes[i].items.length && !exit; k++) {
-            if (attributes[i].items[k].value === value) {
-              verifiedSettings.push({ id: urlSettings[j].id, value });
-              exit = true;
-            }
-          }
-          if (!exit) {
-            const id = attributes[i].id;
-            const value = attributes[i].items[0].value;
-            verifiedSettings.push({ id, value });
-          }
-          urlSettings.splice(j, 1);
+
+      for (const urlSetting of urlSettings) {
+        if (found) break;
+        if (attribute.id !== urlSetting.id) continue;
+
+        const { value: urlValue } = urlSetting;
+
+        for (const item of attribute.items) {
+          if (item.value !== urlValue) continue;
+
+          verifiedSettings.push({ id: urlSetting.id, value: urlValue });
           found = true;
+          break;
         }
       }
-      if (!found) {
-        const id = attributes[i].id;
-        const value = attributes[i].items[0].value;
-        verifiedSettings.push({ id, value });
-      }
+      if (found) continue;
+
+      const id = attribute.id;
+      const value = attribute.items[0].value;
+      verifiedSettings.push({ id, value });
     }
     return verifiedSettings;
   };
@@ -190,9 +192,7 @@ class Product extends React.Component {
     const url = this.urlizeSettings(settings, productId);
     const { location } = this.props;
 
-    if (location.pathname !== url) {
-      this.props.history.push(url);
-    }
+    if (location.pathname !== url) this.props.history.push(url);
   };
 
   changeBigImg = (img) => {
@@ -201,13 +201,13 @@ class Product extends React.Component {
 
   changeSettings = (id, value) => {
     const { settings } = this.state;
-    for (let i = 0; i < settings.length; i++) {
-      if (settings[i].id === id) {
-        settings[i].value = value;
-        this.setState({ settings: settings });
-        this.changeURL(settings, this.state.id);
-        return;
-      }
+    for (const setting of settings) {
+      if (setting.id !== id) continue;
+
+      setting.value = value;
+      this.setState({ settings: settings });
+      this.changeURL(settings, this.state.id);
+      return;
     }
   };
 
@@ -256,6 +256,7 @@ class Product extends React.Component {
             {gallery.map((img, index) => {
               const borderClass = "";
               // = bigImg === img ? "product__galleryImageBorder" : "";
+
               return (
                 <div className="product__galleryImgContainer" key={`img${index}`}>
                   <div
@@ -281,16 +282,19 @@ class Product extends React.Component {
                 const type = att.type;
                 const container = `product__${type}Container`;
                 const setting = settings[index];
+
                 return (
                   <React.Fragment key={`product attribute ${att.id}`}>
                     <div className="product__attributeType">{att.id}:</div>
                     <div className={container}>
                       {att.items.map((item) => {
-                        let style = { border: `1px solid ${item.value}` };
-                        let selected = "";
                         const background = { background: `${item.value}` };
-                        if (item.displayValue === "White") style = { border: `1px solid #1d1f22` };
+                        let selected = "";
+                        let blackBorder = "product__notWhiteSwatch";
+
+                        if (item.id === "White") blackBorder = "product__whiteSwatch";
                         if (setting.value === item.value) selected = "selected";
+
                         return (
                           <React.Fragment key={`${type} ${item.id}`}>
                             {type === "text" && (
@@ -300,8 +304,8 @@ class Product extends React.Component {
                             )}
                             {type === "swatch" && (
                               <div className={`product__swatchBorder ${selected}`} onClick={() => this.changeSettings(att.id, item.value)}>
-                                <div className="spacer">
-                                  <div style={style}>
+                                <div className="product__swatchSpacer">
+                                  <div className={blackBorder}>
                                     <div className={`product__swatch`} style={background} />
                                   </div>
                                 </div>
@@ -311,6 +315,7 @@ class Product extends React.Component {
                         );
                       })}
                     </div>
+                    <div className="product__attributeSpacer" />
                   </React.Fragment>
                 );
               })}
@@ -321,7 +326,7 @@ class Product extends React.Component {
               <div className="product__buttonText">{inStock ? "add to cart" : "out of stock"}</div>
             </button>
             <div className="product__description">
-              <div dangerouslySetInnerHTML={{ __html: description }}></div>
+              <Markup content={description} />
             </div>
           </div>
         </div>
@@ -330,4 +335,4 @@ class Product extends React.Component {
   }
 }
 
-export default Product;
+export default withRouter(Product);

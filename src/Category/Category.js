@@ -1,8 +1,9 @@
 import React from "react";
 import CategoryProduct from "./CategoryProduct";
 import { client, Query, Field } from "@tilework/opus";
-import Helper from "../Helper";
+import Helper from "../utils/Helper";
 import { AppContext } from "../Context";
+import { withRouter } from "react-router-dom";
 
 class Category extends React.Component {
   static contextType = AppContext;
@@ -19,6 +20,7 @@ class Category extends React.Component {
 
   componentDidMount() {
     console.log("Mounted: Category");
+    window.scrollTo(0, 0);
     this.fetchProducts();
   }
 
@@ -60,20 +62,22 @@ class Category extends React.Component {
           )
       );
 
-    client
+    const category = await client
       .post(query, { signal: this.controller.signal })
       .then((res) => res.category)
       .then((category) => {
-        this.setState({ category: category, products: category.products, loading: false, error: undefined });
-        this.updateCurrentCategory(category.name);
+        return category;
       })
       .catch((err) => {
-        if (err?.name === "AbortError") {
-          return undefined;
-        }
+        if (err?.name === "AbortError") return undefined;
+
         this.setState({ error: err.message, loading: false });
         console.log(err.message);
       });
+    if (!category) return;
+
+    this.setState({ category: category, products: category.products, loading: false, error: undefined });
+    this.updateCurrentCategory(category.name);
   }
 
   updateCurrentCategory = (category) => {
@@ -109,4 +113,4 @@ class Category extends React.Component {
   }
 }
 
-export default Category;
+export default withRouter(Category);

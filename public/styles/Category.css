@@ -7,10 +7,10 @@
   font-family: "Raleway";
   font-style: normal;
   font-weight: 400;
-  font-size: 42px;
+  font-size: 56px;
   line-height: 160%;
-  margin-top: 9vh;
-  margin-bottom: 12vh;
+  margin-top: 70px;
+  margin-bottom: 90px;
 }
 
 .category__name::first-letter {

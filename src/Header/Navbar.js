@@ -14,35 +14,25 @@ class Navbar extends React.Component {
   exitDropdown = (event) => {
     const button = document.querySelector(".nav__button");
 
-    if (!button.contains(event.target)) {
-      this.closeDropdown();
-    }
+    if (!button.contains(event.target)) this.closeDropdown();
   };
 
   toggleDropdown = () => {
-    const dropdownStyle = document.querySelector(".nav__dropdown").style;
+    const dropdown = document.querySelector(".nav__dropdown");
+    const arrow = document.querySelector(".nav__dropdownArrow");
 
-    dropdownStyle.display === "" ? this.openDropdown() : this.closeDropdown();
+    dropdown.classList.toggle("open");
+    arrow.classList.toggle("open");
   };
 
   closeDropdown = () => {
-    const dropdownStyle = document.querySelector(".nav__dropdown").style;
-    const arrowStyle = document.querySelector(".nav__dropdownArrow").style;
+    const dropdown = document.querySelector(".nav__dropdown");
+    const arrow = document.querySelector(".nav__dropdownArrow");
 
-    arrowStyle.transform = "rotate(45deg)";
-    arrowStyle["margin-bottom"] = "4px";
+    if (!dropdown.classList.contains("open")) return;
 
-    dropdownStyle.display = "";
-  };
-
-  openDropdown = () => {
-    const dropdownStyle = document.querySelector(".nav__dropdown").style;
-    const arrowStyle = document.querySelector(".nav__dropdownArrow").style;
-
-    arrowStyle.transform = "rotate(-135deg)";
-    arrowStyle["margin-bottom"] = "-2px";
-
-    dropdownStyle.display = "inline-block";
+    dropdown.classList.toggle("open");
+    arrow.classList.toggle("open");
   };
 
   selectCurrency = (symbol) => {
@@ -55,8 +45,7 @@ class Navbar extends React.Component {
   };
 
   render() {
-    const { currency, currentCategory } = this.context[0];
-
+    const { currency, currentCategory, currencies } = this.context[0];
     return (
       <nav className="nav">
         <ul className="nav__list">
@@ -83,7 +72,7 @@ class Navbar extends React.Component {
                   <span className="nav__dropdownArrow"></span>
                 </button>
                 <div className="nav__dropdown">
-                  {this.props.currencies.map((currency) => {
+                  {currencies.map((currency) => {
                     return (
                       <div key={currency.symbol} className="nav__dropdownItem" onMouseDown={() => this.selectCurrency(currency.symbol)}>
                         {currency.symbol} {currency.label}

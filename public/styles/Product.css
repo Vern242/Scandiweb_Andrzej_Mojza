@@ -22,6 +22,12 @@
   width: 100px;
   height: 100px;
   text-align: center;
+  background-color: #ffffff;
+}
+
+.product__galleryImgContainer:hover {
+  cursor: pointer;
+  filter: drop-shadow(0px 0px 15px rgba(168, 172, 176, 0.2));
 }
 
 .product__galleryImage {
@@ -31,11 +37,6 @@
   background-size: cover;
   background-repeat: no-repeat;
   /* border: 1px solid transparent; */
-}
-
-.product__galleryImage:hover {
-  cursor: pointer;
-  filter: drop-shadow(0px 0px 15px rgba(168, 172, 176, 0.2));
 }
 
 /* .product__galleryImageBorder {
@@ -65,9 +66,9 @@
 
 .product__brand {
   font-family: "Raleway";
-  font-size: 30px;
+  font-size: 32px;
   font-weight: 600;
-  line-height: 27px;
+  line-height: 30px;
   letter-spacing: 0em;
   text-align: left;
 }
@@ -76,21 +77,20 @@
   margin-top: 16px;
 
   font-family: "Raleway";
-  font-size: 30px;
+  font-size: 32px;
   font-weight: 400;
-  line-height: 27px;
+  line-height: 30px;
   letter-spacing: 0em;
   text-align: left;
 }
 
 .product__attributes {
   margin-top: 50px;
-  margin-bottom: 35px;
-  gap: 25px;
+  margin-bottom: 16px;
 }
 .product__attributeType {
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 
   font-family: "Roboto Condensed";
   font-size: 18px;
@@ -102,6 +102,10 @@
   text-transform: uppercase;
 }
 
+.product__attributeSpacer {
+  height: 8px;
+}
+
 .product__swatchContainer {
   display: flex;
   gap: 8px 8px;
@@ -109,28 +113,41 @@
   margin-bottom: 10px;
 }
 
-.product__swatch {
-  width: 30px;
-  height: 30px;
-}
-
 .product__swatchBorder {
   border: 1px solid transparent;
   cursor: pointer;
+  box-sizing: border-box;
+  height: 36px;
+  width: 36px;
 }
-
 .product__swatchBorder.selected {
   border: 1px solid #5ece7b;
   cursor: pointer;
+}
+.product__swatchSpacer {
+  border: 1px solid transparent;
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
+}
+.product__notWhiteSwatch {
+  height: 100%;
+  width: 100%;
+}
+.product__whiteSwatch {
+  border: 1px solid #1d1f22;
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
+}
+.product__swatch {
+  height: 100%;
+  width: 100%;
 }
 
 /* .product__swatchBorder:hover {
   border: 1px solid #5ece7b;
 } */
-
-.product__swatchBorder .spacer {
-  border: 1px solid transparent;
-}
 
 .product__textContainer {
   display: flex;
@@ -146,7 +163,7 @@
   border: 1px solid #1d1f22;
 
   font-family: "Source Sans Pro";
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 400;
   line-height: 18px;
   font-style: normal;
@@ -157,7 +174,7 @@
 
 .product__textValue {
   position: relative;
-  top: calc(50% - 11px);
+  top: calc(50% - 10px);
 }
 
 .product__text.selected {
@@ -174,6 +191,7 @@
   text-align: left;
 
   margin-bottom: 40px;
+  margin-top: 25px;
 }
 
 .product__button {

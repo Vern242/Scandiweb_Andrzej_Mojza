@@ -1,5 +1,5 @@
 import React from "react";
-import Helper from "../Helper";
+import Helper from "../utils/Helper";
 import { AppContext } from "../Context";
 import { Link } from "react-router-dom";
 import ProductImage from "./ProductImage";
@@ -15,6 +15,11 @@ class Cart extends React.Component {
       loading: true,
       error: undefined,
     };
+  }
+
+  componentDidMount() {
+    this.context[1]({ currentCategory: "" });
+    window.scrollTo(0, 0);
   }
 
   addToCart = (product) => {
@@ -70,18 +75,19 @@ class Cart extends React.Component {
                         <div className="cart__attributeName">{att.name}:</div>
                         <div className="cart__attributeContainer">
                           {att.items.map((item, index) => {
-                            let style = { border: `1px solid ${item.value}` };
-                            let selected = "";
                             const background = { background: `${item.value}` };
-                            if (item.displayValue === "White") style = { border: `1px solid #1d1f22` };
+                            let selected = "";
+                            let blackBorder = "cart__notWhiteSwatch";
+
+                            if (item.id === "White") blackBorder = "cart__whiteSwatch";
                             if (setting.value === item.value) selected = "selected";
                             return (
                               <React.Fragment key={`att${index} item${index}`}>
                                 {type === "text" && <div className={`cart__text ${selected}`}>{item.value}</div>}
                                 {type === "swatch" && (
                                   <div className={`cart__swatchBorder ${selected}`}>
-                                    <div className="spacer">
-                                      <div style={style}>
+                                    <div className="cart__swatchSpacer">
+                                      <div className={blackBorder}>
                                         <div className={`cart__swatch`} style={background} />
                                       </div>
                                     </div>

@@ -16,8 +16,7 @@ class ProductImage extends React.Component {
     if (direction === "<") {
       final = currentPosition - 1;
       if (final < 0) final += galleryLength;
-    }
-    if (direction === ">") {
+    } else if (direction === ">") {
       final = currentPosition + 1;
       if (final >= galleryLength) final -= galleryLength;
     }

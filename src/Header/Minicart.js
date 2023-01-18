@@ -1,47 +1,19 @@
 import React from "react";
 import cartImg from "../Images/Empty_cart.png";
 import { Link } from "react-router-dom";
-import Helper from "../Helper";
+import Helper from "../utils/Helper";
 import { AppContext } from "../Context";
-import { client, Field, Query } from "@tilework/opus";
 
 class Minicart extends React.Component {
   static contextType = AppContext;
-
   componentDidMount() {
     document.body.addEventListener("mousedown", this.exitMinicart);
     this.loadCartFromStorage();
   }
 
-  loadCartFromStorage = async () => {
-    const storageCart = Helper.loadCartFromStorage(this.context[1]);
-    const queries = [];
-    for (let i = 0; i < storageCart.length; i++) {
-      const query = new Query("product", true);
-      query
-        .addArgument("id", "String!", storageCart[i]?.id)
-        .addField("id")
-        .addField("brand")
-        .addField("name")
-        .addField("inStock")
-        .addField("gallery")
-        .addField("description")
-        .addField("category")
-
-        .addField(
-          new Field("attributes")
-            .addField("id")
-            .addField("name")
-            .addField("type")
-            .addField(new Field("items").addField("displayValue").addField("value").addField("id"))
-        )
-        .addField(new Field("prices").addField("amount").addField(new Field("currency").addField("label").addField("symbol")));
-      queries.push(client.post(query));
-    }
-    //update to singular server query with multiple IDs as argument when available
-    const fetchedProducts = await Promise.all(queries);
-    const verifiedCart = Helper.verifyCart(storageCart, fetchedProducts);
-    Helper.addToCartFromStorage(this.context, verifiedCart);
+  loadCartFromStorage = () => {
+    const cartFromStorage = Helper.loadCartFromStorage(this.context[1]);
+    Helper.addToCartFromStorage(this.context, cartFromStorage);
   };
 
   cartQuantity = () => {
@@ -50,6 +22,7 @@ class Minicart extends React.Component {
 
   cartSum = () => {
     const sum = Helper.cartSum(this.context);
+
     if (sum === 0) return `${this.context[0].currency}0.00`;
     else return sum;
   };
@@ -57,6 +30,7 @@ class Minicart extends React.Component {
   currentPrice = (product) => {
     const { prices } = product;
     const { currency } = this.context[0];
+
     return Helper.currentPriceWithoutSpaces(prices, currency);
   };
 
@@ -76,58 +50,57 @@ class Minicart extends React.Component {
 
   toggleMinicart = () => {
     const backdrop = document.querySelector(".modal__backdrop");
-    const bStyle = backdrop.style;
+    const minicart = document.querySelector(".minicart__container");
+    const minicartItems = document.querySelector(".minicart__itemContainer");
+    minicartItems.scrollTo(0, 0);
 
-    if (bStyle.display === "") {
-      this.openMinicart();
-    } else if (bStyle.display === "block") {
-      this.closeMinicart();
-    }
-  };
-
-  openMinicart = () => {
-    const backdrop = document.querySelector(".modal__backdrop");
-    const modal = document.querySelector(".minicart__container");
-    const bStyle = backdrop.style;
-    const mStyle = modal.style;
-
-    bStyle.display = "block";
-    mStyle.display = "block";
+    backdrop.classList.toggle("open");
+    minicart.classList.toggle("open");
   };
 
   closeMinicart = () => {
     const backdrop = document.querySelector(".modal__backdrop");
-    const modal = document.querySelector(".minicart__container");
-    const bStyle = backdrop.style;
-    const mStyle = modal.style;
+    const minicart = document.querySelector(".minicart__container");
+    const minicartItems = document.querySelector(".minicart__itemContainer");
+    minicartItems.scrollTo(0, 0);
 
-    bStyle.display = "";
-    mStyle.display = "";
+    if (!minicart.classList.contains("open")) return;
+
+    backdrop.classList.toggle("open");
+    minicart.classList.toggle("open");
   };
 
   exitMinicart = (event) => {
     const cart = document.getElementById("nav__minicart");
 
-    if (!cart.contains(event.target)) {
-      this.closeMinicart();
-    }
+    if (!cart.contains(event.target)) this.closeMinicart();
   };
 
   calcCartHeight = () => {
     const { cart } = this.context[0];
+    if (cart.length === 0) return;
+
     const baseProductHeight = 80;
-    const textAttributeHeight = 60;
-    const swatchAttributeHeight = 56;
+    const noAttributesBaseProductHeight = 96;
+    const textAttributeHeight = 62;
+    const swatchAttributeHeight = 60;
     const productGap = 40;
     let totalHeight = 0;
-    for (let i = 0; i < cart.length; i++) {
-      totalHeight += baseProductHeight;
-      for (let j = 0; j < cart[i].attributes.length; j++) {
-        if (cart[i].attributes[j].type === "text") totalHeight += textAttributeHeight;
-        if (cart[i].attributes[j].type === "swatch") totalHeight += swatchAttributeHeight;
+
+    for (const product of cart) {
+      if (product.attributes.length < 1) {
+        totalHeight += noAttributesBaseProductHeight;
+      } else {
+        totalHeight += baseProductHeight;
+      }
+
+      for (const attribute of product.attributes) {
+        if (attribute.type === "text") totalHeight += textAttributeHeight;
+        if (attribute.type === "swatch") totalHeight += swatchAttributeHeight;
       }
     }
     totalHeight += productGap * (cart.length - 1);
+
     return totalHeight;
   };
 
@@ -156,6 +129,7 @@ class Minicart extends React.Component {
                 const gap = index + 1 !== arr.length ? "gap" : "";
                 const backgroundImg = product.gallery[0];
                 const img = { backgroundImage: `url(${backgroundImg})` };
+
                 return (
                   <div key={`minicart_${product.id}${index}`} className={`minicart__item ${gap}`}>
                     <div className="minicart__itemDetails">
@@ -165,23 +139,26 @@ class Minicart extends React.Component {
                       {product.attributes.map((att, index) => {
                         const type = att.type;
                         const setting = product.settings[index];
+
                         return (
                           <React.Fragment key={`${type} ${index}`}>
                             <div className="minicart__attributeName">{att.id}:</div>
                             <div className="minicart__attributeContainer">
                               {att.items.map((item) => {
-                                let style = { border: `1px solid ${item.value}` };
-                                let selected = "";
                                 const background = { background: `${item.value}` };
-                                if (item.displayValue === "White") style = { border: `1px solid #1d1f22` };
+                                let selected = "";
+                                let blackBorder = "minicart__notWhiteSwatch";
+
+                                if (item.id === "White") blackBorder = "minicart__whiteSwatch";
                                 if (setting.value === item.value) selected = "selected";
+
                                 return (
                                   <React.Fragment key={`${type} ${index} ${item.value}`}>
                                     {type === "text" && <div className={`minicart__text ${selected}`}>{item.value}</div>}
                                     {type === "swatch" && (
                                       <div className={`minicart__swatchBorder ${selected}`}>
-                                        <div className="spacer">
-                                          <div style={style}>
+                                        <div className="minicart__swatchSpacer">
+                                          <div className={blackBorder}>
                                             <div className="minicart__swatch" style={background} />
                                           </div>
                                         </div>
@@ -198,11 +175,11 @@ class Minicart extends React.Component {
                     <div className="minicart__itemEnd">
                       <div className="minicart__quantity">
                         <button className="minicart__quantityButton" onClick={() => this.addToCart(product)}>
-                          +
+                          <span className="minicart__plus">+</span>
                         </button>
                         <span className="minicart__quantityText">{product.quantity}</span>
                         <button className="minicart__quantityButton" onClick={() => this.reduceFromCart(product)}>
-                          &ndash;
+                          <span className="minicart__minus">&ndash;</span>
                         </button>
                       </div>
                       <div className="minicart__image" style={img} />
