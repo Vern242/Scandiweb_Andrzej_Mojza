@@ -2,6 +2,7 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).\
 It uses the provided backend: https://github.com/scandiweb/junior-react-endpoint. \
+As per requirements, project uses only class components and no css libraries. \
 App written by Andrzej Mojza.
 
 ## Available Scripts
